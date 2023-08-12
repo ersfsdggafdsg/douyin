@@ -1,7 +1,7 @@
 # douyin
 
 ## 目录结构
-···
+```
  cmd
  +- api API网关，使用Hertz
  |  +- biz Hertz自动生成的路径，需要实现其中的handler
