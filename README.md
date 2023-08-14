@@ -12,6 +12,13 @@
  |  |  `- rpc 初始化rpc服务
  |  `- pkg handler的具体实现
  +- comment
+ |  +- pkg 
+ |  |  `- mysql 数据库操作的实现
+ |  +- init
+ |  `- config 初始化使用的代码
+ |     +- rpc rpc实现
+ |     +- ...init.go rpc初始化
+ |     `- init.go 初始化
  +- favorite
  +- feed
  +- message
