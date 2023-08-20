@@ -3,6 +3,7 @@
 package publish
 
 import (
+	"bytes"
 	"context"
 	"douyin/shared/rpc/kitex_gen/base"
 	"douyin/shared/rpc/kitex_gen/rpc"
@@ -483,9 +484,9 @@ func (p *DouyinPublishListResponse) Field3DeepEqual(src []*base.Video) bool {
 }
 
 type DouyinPublishActionRequest struct {
-	UserId  int64  `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
-	PlayUrl string `thrift:"play_url,2" frugal:"2,default,string" json:"play_url"`
-	Title   string `thrift:"title,3" frugal:"3,default,string" json:"title"`
+	UserId int64  `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
+	Data   []byte `thrift:"data,2" frugal:"2,default,binary" json:"data"`
+	Title  string `thrift:"title,3" frugal:"3,default,string" json:"title"`
 }
 
 func NewDouyinPublishActionRequest() *DouyinPublishActionRequest {
@@ -500,8 +501,8 @@ func (p *DouyinPublishActionRequest) GetUserId() (v int64) {
 	return p.UserId
 }
 
-func (p *DouyinPublishActionRequest) GetPlayUrl() (v string) {
-	return p.PlayUrl
+func (p *DouyinPublishActionRequest) GetData() (v []byte) {
+	return p.Data
 }
 
 func (p *DouyinPublishActionRequest) GetTitle() (v string) {
@@ -510,8 +511,8 @@ func (p *DouyinPublishActionRequest) GetTitle() (v string) {
 func (p *DouyinPublishActionRequest) SetUserId(val int64) {
 	p.UserId = val
 }
-func (p *DouyinPublishActionRequest) SetPlayUrl(val string) {
-	p.PlayUrl = val
+func (p *DouyinPublishActionRequest) SetData(val []byte) {
+	p.Data = val
 }
 func (p *DouyinPublishActionRequest) SetTitle(val string) {
 	p.Title = val
@@ -519,7 +520,7 @@ func (p *DouyinPublishActionRequest) SetTitle(val string) {
 
 var fieldIDToName_DouyinPublishActionRequest = map[int16]string{
 	1: "user_id",
-	2: "play_url",
+	2: "data",
 	3: "title",
 }
 
@@ -612,10 +613,10 @@ func (p *DouyinPublishActionRequest) ReadField1(iprot thrift.TProtocol) error {
 }
 
 func (p *DouyinPublishActionRequest) ReadField2(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
+	if v, err := iprot.ReadBinary(); err != nil {
 		return err
 	} else {
-		p.PlayUrl = v
+		p.Data = []byte(v)
 	}
 	return nil
 }
@@ -684,10 +685,10 @@ WriteFieldEndError:
 }
 
 func (p *DouyinPublishActionRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("play_url", thrift.STRING, 2); err != nil {
+	if err = oprot.WriteFieldBegin("data", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.PlayUrl); err != nil {
+	if err := oprot.WriteBinary([]byte(p.Data)); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -733,7 +734,7 @@ func (p *DouyinPublishActionRequest) DeepEqual(ano *DouyinPublishActionRequest) 
 	if !p.Field1DeepEqual(ano.UserId) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.PlayUrl) {
+	if !p.Field2DeepEqual(ano.Data) {
 		return false
 	}
 	if !p.Field3DeepEqual(ano.Title) {
@@ -749,9 +750,9 @@ func (p *DouyinPublishActionRequest) Field1DeepEqual(src int64) bool {
 	}
 	return true
 }
-func (p *DouyinPublishActionRequest) Field2DeepEqual(src string) bool {
+func (p *DouyinPublishActionRequest) Field2DeepEqual(src []byte) bool {
 
-	if strings.Compare(p.PlayUrl, src) != 0 {
+	if bytes.Compare(p.Data, src) != 0 {
 		return false
 	}
 	return true

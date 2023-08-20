@@ -77,7 +77,6 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	playUrl, err := tools.Upload(&req.Data)
 	if err != nil {
 		errhandler.ErrorResponse("Upload video failed:",
 			err, consts.StatusInternalServerError, c)
@@ -88,7 +87,7 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 		ctx,
 		&kpublish.DouyinPublishActionRequest{
 			UserId: token.Id,
-			PlayUrl: playUrl,
+			Data: req.Data,
 			Title: req.Title,
 		})
 	if err != nil {

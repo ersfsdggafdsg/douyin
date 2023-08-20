@@ -17,7 +17,7 @@ struct douyin_publish_list_response {
 // 发布视频请求
 struct douyin_publish_action_request {
   1: i64 user_id
-  2: string play_url
+  2: binary data
   3: string title
 }
 
