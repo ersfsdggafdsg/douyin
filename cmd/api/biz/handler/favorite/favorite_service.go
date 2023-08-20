@@ -4,8 +4,11 @@ package favorite
 
 import (
 	"context"
-
+	"douyin/shared/config"
+	"douyin/shared/tools"
+	kfavorite "douyin/shared/rpc/kitex_gen/favorite"
 	favorite "douyin/cmd/api/biz/model/favorite"
+	"douyin/cmd/api/pkg/errhandler"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -21,7 +24,32 @@ func FavoriteAction(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(favorite.DouyinFavoriteActionResponse)
+	// Token字段不能够为空，因为是对视频点赞或取消点赞
+	if req.Token == "" {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	token, err := tools.ParseToken(req.Token)
+	if err != nil {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	resp, err := config.Clients.Favorite.FavoriteAction(
+		ctx,
+		&kfavorite.DouyinFavoriteActionRequest {
+			UserId: token.Id,
+			VideoId: req.VideoID,
+			ActionType: req.ActionType,
+		})
+	if err != nil {
+		errhandler.RPCCallErrorResponse("comment",
+			err, consts.StatusInternalServerError, c)
+		return
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -37,7 +65,29 @@ func FavoriteList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(favorite.DouyinFavoriteListResponse)
+	// Token字段不能够为空，因为是对评论进行操作
+	if req.Token == "" {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	token, err := tools.ParseToken(req.Token)
+	if err != nil {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	resp, err := config.Clients.Favorite.FavoriteList (
+		ctx,
+		&kfavorite.DouyinFavoriteListRequest {
+			UserId: token.Id,
+		})
+	if err != nil {
+		errhandler.RPCCallErrorResponse("comment",
+			err, consts.StatusInternalServerError, c)
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

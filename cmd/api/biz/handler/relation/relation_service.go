@@ -4,6 +4,10 @@ package relation
 
 import (
 	"context"
+	"douyin/shared/config"
+	"douyin/shared/tools"
+	krelation "douyin/shared/rpc/kitex_gen/relation"
+	"douyin/cmd/api/pkg/errhandler"
 
 	relation "douyin/cmd/api/biz/model/relation"
 	"github.com/cloudwego/hertz/pkg/app"
@@ -21,7 +25,31 @@ func RelationAction(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(relation.DouyinRelationActionResponse)
+	// Token字段不能够为空，因为要获取自己的发布列表
+	if req.Token == "" {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	token, err := tools.ParseToken(req.Token)
+	if err != nil {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	resp, err := config.Clients.Relation.RelationAction(
+		ctx,
+		&krelation.DouyinRelationActionRequest{
+			UserId: token.Id,
+			ToUserId: req.ToUserID,
+			ActionType: req.ActionType,
+		})
+	if err != nil {
+		errhandler.RPCCallErrorResponse("relation",
+			err, consts.StatusInternalServerError, c)
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -37,7 +65,29 @@ func FollowList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(relation.DouyinRelationFollowListResponse)
+	// Token字段不能够为空，因为要获取自己的发布列表
+	if req.Token == "" {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	token, err := tools.ParseToken(req.Token)
+	if err != nil {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	resp, err := config.Clients.Relation.FollowList(
+		ctx,
+		&krelation.DouyinRelationFollowListRequest{
+			UserId: token.Id,
+		})
+	if err != nil {
+		errhandler.RPCCallErrorResponse("relation",
+			err, consts.StatusInternalServerError, c)
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -53,7 +103,29 @@ func FollowerList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(relation.DouyinRelationFollowerListResponse)
+	// Token字段不能够为空，因为要获取自己的发布列表
+	if req.Token == "" {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	token, err := tools.ParseToken(req.Token)
+	if err != nil {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	resp, err := config.Clients.Relation.FollowerList(
+		ctx,
+		&krelation.DouyinRelationFollowerListRequest{
+			UserId: token.Id,
+		})
+	if err != nil {
+		errhandler.RPCCallErrorResponse("relation",
+			err, consts.StatusInternalServerError, c)
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -69,7 +141,28 @@ func FriendList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(relation.DouyinRelationFriendListResponse)
+	// Token字段不能够为空，因为要获取自己的发布列表
+	if req.Token == "" {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
 
+	token, err := tools.ParseToken(req.Token)
+	if err != nil {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	resp, err := config.Clients.Relation.FriendList(
+		ctx,
+		&krelation.DouyinRelationFriendListRequest{
+			UserId: token.Id,
+		})
+	if err != nil {
+		errhandler.RPCCallErrorResponse("relation",
+			err, consts.StatusInternalServerError, c)
+	}
 	c.JSON(consts.StatusOK, resp)
 }

@@ -4,8 +4,11 @@ package comment
 
 import (
 	"context"
-
+	"douyin/shared/config"
+	"douyin/shared/tools"
 	comment "douyin/cmd/api/biz/model/comment"
+	kcomment "douyin/shared/rpc/kitex_gen/comment"
+	"douyin/cmd/api/pkg/errhandler"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -21,7 +24,33 @@ func CommentAction(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(comment.DouyinCommentActionResponse)
+	// Token字段不能够为空，因为是登录用户对评论进行操作
+	if req.Token == "" {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	token, err := tools.ParseToken(req.Token)
+	if err != nil {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	resp, err := config.Clients.Comment.CommentAction(
+		ctx,
+		&kcomment.DouyinCommentActionRequest {
+			UserId: token.Id,
+			VideoId: req.VideoID,
+			ActionType: req.ActionType,
+			CommentText: req.CommentText,
+			CommentId: req.CommentID,
+		})
+	if err != nil {
+		errhandler.RPCCallErrorResponse("comment",
+			err, consts.StatusInternalServerError, c)
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -37,7 +66,28 @@ func CommentList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(comment.DouyinCommentListResponse)
+	userId := int64(-1)
+	// Token字段可以为空，因为任意用户都可以看视频的评论
+	if req.Token != "" {
+		token, err := tools.ParseToken(req.Token)
+		if err != nil {
+			errhandler.ParseTokenErrorResponse(
+				err, consts.StatusBadRequest, c)
+			return
+		}
+		userId = token.Id
+	}
+
+	resp, err := config.Clients.Comment.CommentList(
+		ctx,
+		&kcomment.DouyinCommentListRequest {
+			UserId: userId,
+			VideoId: req.VideoID,
+		})
+	if err != nil {
+		errhandler.RPCCallErrorResponse("comment",
+			err, consts.StatusInternalServerError, c)
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

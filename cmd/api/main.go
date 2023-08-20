@@ -3,12 +3,14 @@
 package main
 
 import (
+	"douyin/cmd/api/initialize"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
 func main() {
-	h := server.Default()
-
+	registry, info := initialize.InitRegistry();
+	h := server.Default(
+		server.WithRegistry(registry, info))
 	register(h)
 	h.Spin()
 }

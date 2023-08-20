@@ -4,6 +4,10 @@ package publish
 
 import (
 	"context"
+	"douyin/shared/config"
+	"douyin/shared/tools"
+	kpublish "douyin/shared/rpc/kitex_gen/publish"
+	"douyin/cmd/api/pkg/errhandler"
 
 	publish "douyin/cmd/api/biz/model/publish"
 	"github.com/cloudwego/hertz/pkg/app"
@@ -21,7 +25,29 @@ func PublishList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(publish.DouyinPublishListResponse)
+	// Token字段不能够为空，因为要获取自己的发布列表
+	if req.Token == "" {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	token, err := tools.ParseToken(req.Token)
+	if err != nil {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	resp, err := config.Clients.Publish.PublishList(
+		ctx,
+		&kpublish.DouyinPublishListRequest{
+			UserId: token.Id,
+		})
+	if err != nil {
+		errhandler.RPCCallErrorResponse("comment",
+			err, consts.StatusInternalServerError, c)
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -37,7 +63,38 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(publish.DouyinPublishActionResponse)
+	// Token字段不能够为空，因为是登录用户操作发布视频
+	if req.Token == "" {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	token, err := tools.ParseToken(req.Token)
+	if err != nil {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	playUrl, err := tools.Upload(&req.Data)
+	if err != nil {
+		errhandler.ErrorResponse("Upload video failed:",
+			err, consts.StatusInternalServerError, c)
+		return
+	}
+
+	resp, err := config.Clients.Publish.PublishAction(
+		ctx,
+		&kpublish.DouyinPublishActionRequest{
+			UserId: token.Id,
+			PlayUrl: playUrl,
+			Title: req.Title,
+		})
+	if err != nil {
+		errhandler.RPCCallErrorResponse("comment",
+			err, consts.StatusInternalServerError, c)
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

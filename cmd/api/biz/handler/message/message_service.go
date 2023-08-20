@@ -5,6 +5,10 @@ package message
 import (
 	"context"
 
+	"douyin/shared/config"
+	"douyin/shared/tools"
+	"douyin/cmd/api/pkg/errhandler"
+	kmessage "douyin/shared/rpc/kitex_gen/message"
 	message "douyin/cmd/api/biz/model/message"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -21,7 +25,31 @@ func MessageList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(message.DouyinMessageChatResponse)
+	// Token字段不能够为空，因为要获取自己的聊天记录
+	if req.Token == "" {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	token, err := tools.ParseToken(req.Token)
+	if err != nil {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	resp, err := config.Clients.Message.MessageList(
+		ctx,
+		&kmessage.DouyinMessageChatRequest {
+			UserId: token.Id,
+			ToUserId: req.ToUserID,
+			PreMsgTime: req.PreMsgTime,
+		})
+	if err != nil {
+		errhandler.RPCCallErrorResponse("comment",
+			err, consts.StatusInternalServerError, c)
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -37,7 +65,32 @@ func MessageAction(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(message.DouyinMessageActionResponse)
+	// Token字段不能够为空，因为要获取自己的聊天记录
+	if req.Token == "" {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	token, err := tools.ParseToken(req.Token)
+	if err != nil {
+		errhandler.ParseTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+
+	resp, err := config.Clients.Message.MessageAction(
+		ctx,
+		&kmessage.DouyinMessageActionRequest {
+			UserId: token.Id,
+			ToUserId: req.ToUserID,
+			ActionType: req.ActionType,
+			Content: req.Content,
+		})
+	if err != nil {
+		errhandler.RPCCallErrorResponse("comment",
+			err, consts.StatusInternalServerError, c)
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

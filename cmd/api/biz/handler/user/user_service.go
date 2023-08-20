@@ -4,8 +4,12 @@ package user
 
 import (
 	"context"
-
+	"douyin/shared/config"
+	"douyin/shared/tools"
+	kuser "douyin/shared/rpc/kitex_gen/user"
+	"douyin/cmd/api/pkg/errhandler"
 	user "douyin/cmd/api/biz/model/user"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -21,8 +25,25 @@ func Login(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(user.DouyinUserLoginResponse)
-
+	resp, err := config.Clients.User.Login(
+		ctx,
+		&kuser.DouyinUserLoginRequest {
+			Username: req.Username,
+			Password: req.Password,
+		})
+	if err != nil {
+		errhandler.RPCCallErrorResponse("user",
+			err, consts.StatusInternalServerError, c)
+		return
+	}
+	
+	resp.Token, err = tools.GenerateToken(resp.UserId)
+	if err != nil {
+		errhandler.GenerateTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
+	
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -30,14 +51,26 @@ func Login(ctx context.Context, c *app.RequestContext) {
 // @router /douyin/user/register [POST]
 func Register(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req user.DouyinUserRegisterRequest
+	var req kuser.DouyinUserRegisterRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
 
-	resp := new(user.DouyinUserRegisterResponse)
+	resp, err := config.Clients.User.Register(ctx, &req)
+	if err != nil {
+		errhandler.RPCCallErrorResponse("register",
+			err, consts.StatusInternalServerError, c)
+		return
+	}
+
+	resp.Token, err = tools.GenerateToken(resp.UserId)
+	if err != nil {
+		errhandler.GenerateTokenErrorResponse(
+			err, consts.StatusBadRequest, c)
+		return
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -46,14 +79,21 @@ func Register(ctx context.Context, c *app.RequestContext) {
 // @router /douyin/user [GET]
 func UserInfo(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req user.DouyinUserRequest
+	var req kuser.DouyinUserRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
 
-	resp := new(user.DouyinUserResponse)
+	resp, err := config.Clients.User.UserInfo(ctx, &req)
+	if err != nil {
+		errhandler.RPCCallErrorResponse("register",
+			err, consts.StatusInternalServerError, c)
+		return
+	}
 
+	// 由于查询的是指定用户自己的信息，所以不需要专门去查询是否关注了
+	resp.User.IsFollow = false
 	c.JSON(consts.StatusOK, resp)
 }

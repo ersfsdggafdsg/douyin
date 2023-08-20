@@ -1,4 +1,5 @@
 hz new
-ls ../../idl/http | grep -v 'api.proto' | while read file; do
-	hz update -idl ../../idl/http/$file
+for file in ../../idl/http/*thrift; do
+	echo $file
+	hz update -idl $file
 done

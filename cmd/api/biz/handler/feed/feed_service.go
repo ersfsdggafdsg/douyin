@@ -4,8 +4,13 @@ package feed
 
 import (
 	"context"
+	"douyin/shared/config"
+	kfeed "douyin/shared/rpc/kitex_gen/feed"
+	"douyin/shared/tools"
 
 	feed "douyin/cmd/api/biz/model/feed"
+	"douyin/cmd/api/pkg/errhandler"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -21,7 +26,29 @@ func Feed(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(feed.DouyinFeedResponse)
+	userId := int64(-1)
+	// 由于token可以为空，所以需要单独判断
+	if req.Token != "" {
+		token, err := tools.ParseToken(req.Token)
+		if err != nil {
+			errhandler.ParseTokenErrorResponse(err,
+				consts.StatusBadRequest, c)
+			return
+		}
+		userId = token.Id
+	}
+
+	resp, err := config.Clients.Feed.Feed(
+		ctx,
+		&kfeed.DouyinFeedRequest {
+			UserId: userId,
+			LatestTime: req.LatestTime,
+		})
+	if err != nil {
+		errhandler.RPCCallErrorResponse("feed",
+			err, consts.StatusInternalServerError, c)
+		return
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
