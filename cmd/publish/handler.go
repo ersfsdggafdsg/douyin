@@ -31,6 +31,8 @@ func (s *PublishServiceImpl) PublishList(ctx context.Context, request *publish.D
 	}
 	info.IsFollow = false
 	for i, v := range result {
+		// 因为model.VideoInfo内嵌了rpc.VideoInfo
+		// 所以可以直接转换为rpc.VideoInfo，具体用法就是下面这样的
 		resp.VideoList[i] = rpc2http.Video(&v.VideoInfo)
 		resp.VideoList[i].Author = rpc2http.User(info)
 	}
