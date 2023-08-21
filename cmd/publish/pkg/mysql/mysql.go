@@ -16,7 +16,7 @@ func init() {
 
 // 创建一个视频记录
 func Create(info *model.VideoInfo) error {
-	return config.DB.Create(info).Error
+	return config.DB.Save(info).Error
 }
 
 // 更新视频的评论数
