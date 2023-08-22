@@ -77,12 +77,6 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	if err != nil {
-		errhandler.ErrorResponse("Upload video failed:",
-			err, consts.StatusInternalServerError, c)
-		return
-	}
-
 	resp, err := config.Clients.Publish.PublishAction(
 		ctx,
 		&kpublish.DouyinPublishActionRequest{

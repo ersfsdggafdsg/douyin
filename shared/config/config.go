@@ -1,5 +1,6 @@
 package config
 import (
+	"gorm.io/gorm"
 	"douyin/shared/initialize/clients/comment"
 	"douyin/shared/rpc/kitex_gen/comment/commentservice"
 	"douyin/shared/initialize/clients/favorite"
@@ -32,3 +33,5 @@ var Clients = struct {
 	Relation: relation.InitClient(),
 	User    : user.InitClient(),
 }
+
+var DB *gorm.DB

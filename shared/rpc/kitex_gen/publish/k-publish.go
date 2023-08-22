@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-
+	"douyin/shared/rpc/kitex_gen/base"
+	"douyin/shared/rpc/kitex_gen/rpc"
 	"github.com/apache/thrift/lib/go/thrift"
-
 	"github.com/cloudwego/kitex/pkg/protocol/bthrift"
 )
 

@@ -12,6 +12,9 @@ import (
 
 // InitRegistry to init consul
 func InitRegistry(srvName string) (registry.Registry, *registry.Info) {
+	if len(os.Args) < 2 {
+		klog.Fatalf("Missing argument: Port")
+	}
 	r, err := consul.NewConsulRegister("127.0.0.1:8500")
 	if err != nil {
 		klog.Fatalf("new consul register failed: %s", err.Error())
