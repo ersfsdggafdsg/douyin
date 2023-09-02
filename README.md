@@ -39,3 +39,10 @@
 sudo pacman -S rabbitmq
 sudo rabbitmq-plugins enable --offline rabbitmq_peer_discovery_consul
 ```
+
+TODO: 
+1. 在网关添加中间件，过滤掉不存在的用户id、不存在的评论id、不存在的视频id
+ uid: /user, /publish/list, /favorite/action, /comment/action, /comment/list, /favorite/list, /relation/follow/list, /relation/follower/list, /relation/friend/list,
+ vid: /favorite/action, /comment/action, /comment/list
+ uid, touid: /message/chat, /message/action, /relation/action
+ uid(可以不存在): /feed
