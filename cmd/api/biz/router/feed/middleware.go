@@ -3,6 +3,7 @@
 package feed
 
 import (
+	"douyin/cmd/api/pkg/middleware"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -17,6 +18,13 @@ func _douyinMw() []app.HandlerFunc {
 }
 
 func _feedMw() []app.HandlerFunc {
+	// 任何人都可以看视频，是否登录了，随便
+	return []app.HandlerFunc{
+		middleware.ParseTokenAndContinue,
+	}
+}
+
+func _feed0Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

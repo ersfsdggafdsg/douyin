@@ -863,8 +863,9 @@ func (p *DouyinFavoriteListResponse) String() string {
 }
 
 type FavoriteService interface {
+	// 点赞操作
 	FavoriteAction(ctx context.Context, req *DouyinFavoriteActionRequest) (r *DouyinFavoriteActionResponse, err error)
-
+	// 点赞的视频列表
 	FavoriteList(ctx context.Context, req *DouyinFavoriteListRequest) (r *DouyinFavoriteListResponse, err error)
 }
 

@@ -36,10 +36,10 @@ service PublishService {
   douyin_publish_action_response PublishAction(1: douyin_publish_action_request request)
 
 	// 更新评论数
-  void UpdateCommentCount(1: i64 videoId, 2: i64 newCommentCount)
+  void UpdateCommentCount(1: i64 videoId, 2: i64 addCount)
   
   // 更新获赞数
-  void UpdateFavoriteCount(1: i64 videoId, 2: i64 newFavoriteCount)  
+  void UpdateFavoriteCount(1: i64 videoId, 2: i64 addCount)
   
   // 查询最近视频
   list<rpc.VideoInfo> QueryRecentVideoInfos(1: i64 startTime, 2: i64 limit)

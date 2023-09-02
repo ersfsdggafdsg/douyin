@@ -4,13 +4,15 @@ package relation
 
 import (
 	"context"
-	"douyin/shared/config"
-	"douyin/shared/tools"
-	krelation "douyin/shared/rpc/kitex_gen/relation"
 	"douyin/cmd/api/pkg/errhandler"
+	"douyin/shared/config"
+	krelation "douyin/shared/rpc/kitex_gen/relation"
+	"douyin/shared/utils/errno"
 
 	relation "douyin/cmd/api/biz/model/relation"
+
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
 
@@ -21,34 +23,24 @@ func RelationAction(ctx context.Context, c *app.RequestContext) {
 	var req relation.DouyinRelationActionRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		errhandler.ErrorResponse(err.Error(), errno.BadRequestCode, c)
 		return
 	}
 
-	// Token字段不能够为空，因为要获取自己的发布列表
-	if req.Token == "" {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
-
-	token, err := tools.ParseToken(req.Token)
-	if err != nil {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
+	userId := ctx.Value("uid").(int64)
 
 	resp, err := config.Clients.Relation.RelationAction(
 		ctx,
 		&krelation.DouyinRelationActionRequest{
-			UserId: token.Id,
-			ToUserId: req.ToUserID,
+			UserId:     userId,
+			ToUserId:   req.ToUserID,
 			ActionType: req.ActionType,
 		})
 	if err != nil {
+		hlog.Error("relation:", err)
 		errhandler.RPCCallErrorResponse("relation",
-			err, consts.StatusInternalServerError, c)
+			errno.ServiceErrCode, c)
+		return
 	}
 
 	c.JSON(consts.StatusOK, resp)
@@ -61,32 +53,22 @@ func FollowList(ctx context.Context, c *app.RequestContext) {
 	var req relation.DouyinRelationFollowListRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		errhandler.ErrorResponse(err.Error(), errno.BadRequestCode, c)
 		return
 	}
 
-	// Token字段不能够为空，因为要获取自己的发布列表
-	if req.Token == "" {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
-
-	token, err := tools.ParseToken(req.Token)
-	if err != nil {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
+	userId := ctx.Value("uid").(int64)
 
 	resp, err := config.Clients.Relation.FollowList(
 		ctx,
 		&krelation.DouyinRelationFollowListRequest{
-			UserId: token.Id,
+			UserId: userId,
 		})
 	if err != nil {
+		hlog.Error("relation:", err)
 		errhandler.RPCCallErrorResponse("relation",
-			err, consts.StatusInternalServerError, c)
+			errno.ServiceErrCode, c)
+		return
 	}
 
 	c.JSON(consts.StatusOK, resp)
@@ -99,32 +81,22 @@ func FollowerList(ctx context.Context, c *app.RequestContext) {
 	var req relation.DouyinRelationFollowerListRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		errhandler.ErrorResponse(err.Error(), errno.BadRequestCode, c)
 		return
 	}
 
-	// Token字段不能够为空，因为要获取自己的发布列表
-	if req.Token == "" {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
-
-	token, err := tools.ParseToken(req.Token)
-	if err != nil {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
+	userId := ctx.Value("uid").(int64)
 
 	resp, err := config.Clients.Relation.FollowerList(
 		ctx,
 		&krelation.DouyinRelationFollowerListRequest{
-			UserId: token.Id,
+			UserId: userId,
 		})
 	if err != nil {
+		hlog.Error("relation:", err)
 		errhandler.RPCCallErrorResponse("relation",
-			err, consts.StatusInternalServerError, c)
+			errno.ServiceErrCode, c)
+		return
 	}
 
 	c.JSON(consts.StatusOK, resp)
@@ -137,32 +109,22 @@ func FriendList(ctx context.Context, c *app.RequestContext) {
 	var req relation.DouyinRelationFriendListRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		errhandler.ErrorResponse(err.Error(), errno.BadRequestCode, c)
 		return
 	}
 
-	// Token字段不能够为空，因为要获取自己的发布列表
-	if req.Token == "" {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
-
-	token, err := tools.ParseToken(req.Token)
-	if err != nil {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
+	userId := ctx.Value("uid").(int64)
 
 	resp, err := config.Clients.Relation.FriendList(
 		ctx,
 		&krelation.DouyinRelationFriendListRequest{
-			UserId: token.Id,
+			UserId: userId,
 		})
 	if err != nil {
+		hlog.Error("relation:", err)
 		errhandler.RPCCallErrorResponse("relation",
-			err, consts.StatusInternalServerError, c)
+			errno.ServiceErrCode, c)
+		return
 	}
 	c.JSON(consts.StatusOK, resp)
 }

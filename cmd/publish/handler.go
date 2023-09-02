@@ -2,34 +2,48 @@ package main
 
 import (
 	"context"
-	"douyin/cmd/publish/pkg/cover"
 	"douyin/cmd/publish/pkg/model"
 	"douyin/cmd/publish/pkg/mysql"
 	"douyin/shared/config"
-	publish "douyin/shared/rpc/kitex_gen/publish"
+	"douyin/shared/rpc/kitex_gen/base"
+	"douyin/shared/rpc/kitex_gen/publish"
 	"douyin/shared/rpc/kitex_gen/rpc"
-	"douyin/shared/tools"
-	"douyin/shared/tools/rpc2http"
+	"douyin/shared/utils"
+	"douyin/shared/utils/cover"
+	"douyin/shared/utils/errno"
+	"douyin/shared/utils/rpc2http"
 
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/cloudwego/kitex/pkg/klog"
+	"gorm.io/gorm"
+	"errors"
 )
 
 // PublishServiceImpl implements the last service interface defined in the IDL.
-type PublishServiceImpl struct{}
+type PublishServiceImpl struct{
+	Db mysql.PublishManager
+}
 
 // PublishList implements the PublishServiceImpl interface.
-func (s *PublishServiceImpl) PublishList(ctx context.Context, request *publish.DouyinPublishListRequest) (resp *publish.DouyinPublishListResponse, err error) {
-	result, err := mysql.GetUserWorks(request.UserId)
+func (s *PublishServiceImpl) PublishList(ctx context.Context, req *publish.DouyinPublishListRequest) (resp *publish.DouyinPublishListResponse, err error) {
+	resp = new(publish.DouyinPublishListResponse)
+
+	result, err := s.Db.QueryByAuthor(req.UserId)
 	if err != nil {
-		tools.BuildBaseResp(err, consts.StatusInternalServerError, resp)
-		return resp, err
+		errno.BuildBaseResp(errno.ServiceErrCode, resp)
+		return resp, nil
 	}
-	info, err := config.Clients.User.GetUserInfo(ctx, request.UserId)
-	if err != nil {
-		tools.BuildBaseResp(err, consts.StatusInternalServerError, resp)
-		return resp, err
+
+	info, err := config.Clients.User.GetUserInfo(ctx, req.UserId)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		errno.BuildBaseResp(errno.UserNotExistErrCode, resp)
+	} else if err != nil {
+		errno.BuildBaseResp(errno.ServiceErrCode, resp)
+		return resp, nil
 	}
+
 	info.IsFollow = false
+	resp.VideoList = make([]*base.Video, len(result))
+
 	for i, v := range result {
 		// 因为model.VideoInfo内嵌了rpc.VideoInfo
 		// 所以可以直接转换为rpc.VideoInfo，具体用法就是下面这样的
@@ -40,59 +54,104 @@ func (s *PublishServiceImpl) PublishList(ctx context.Context, request *publish.D
 }
 
 // PublishAction implements the PublishServiceImpl interface.
-func (s *PublishServiceImpl) PublishAction(ctx context.Context, request *publish.DouyinPublishActionRequest) (resp *publish.DouyinPublishActionResponse, err error) {
-	name := "vid" + tools.SHA256(request.Data)
-	playUrl, err := tools.Upload(request.Data, name)
-	if err != nil {
-		tools.BuildBaseResp(err, consts.StatusInternalServerError, resp)
-		return resp, err
+func (s *PublishServiceImpl) PublishAction(ctx context.Context, req *publish.DouyinPublishActionRequest) (resp *publish.DouyinPublishActionResponse, err error) {
+	resp = new(publish.DouyinPublishActionResponse)
+	if len(req.Title) == 0 || len(req.Data) == 0 {
+		errno.BuildBaseResp(errno.ParamErrCode, resp)
+		return resp, nil
 	}
-	pic, err := cover.GetCoverFromUrl(playUrl)
-	if err != nil {
-		tools.BuildBaseResp(err, consts.StatusInternalServerError, resp)
-		return resp, err
+
+	// 用户是否存在
+	_, err = config.Clients.User.GetUserInfo(ctx, req.UserId)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		errno.BuildBaseResp(errno.UserNotExistErrCode, resp)
+		return resp, nil
 	}
-	name = "cvr" + tools.SHA256(pic)
-	coverUrl, err := tools.Upload(pic, name)
+
+	hash := utils.SHA256(req.Data)
+	videoPath := "vid" + hash
+	coverPath := "cvr" + hash
+	var playUrl, coverUrl string
+	if utils.IsExists(videoPath) {
+		// 由于使用的是哈希，所以可以直接判断是否存在
+		klog.Info("Video existsted, create record only")
+		playUrl = utils.FileUrl(videoPath)
+		coverUrl = utils.FileUrl(coverPath)
+	} else {
+		// 上传视频
+		playUrl, err := utils.Upload(req.Data, videoPath)
+		if err != nil {
+			errno.BuildBaseResp(errno.ServiceErrCode, resp)
+			return resp, nil
+		}
+
+		// 对视频截图，当作封面
+		pic, err := cover.GetCoverFromUrl(playUrl)
+		if err != nil {
+			errno.BuildBaseResp(errno.ServiceErrCode, resp)
+			return resp, nil
+		}
+
+		// 上传封面
+		coverUrl, err = utils.Upload(pic, coverPath)
+		if err != nil {
+			errno.BuildBaseResp(errno.ServiceErrCode, resp)
+			return resp, nil
+		}
+	}
+
+	err = config.Clients.User.UpdateWorkCount(ctx, req.UserId, +1)
+	if err != nil {
+		errno.BuildBaseResp(errno.ServiceErrCode, resp)
+		return resp, nil
+	}
+
 	info := model.VideoInfo {
 		VideoInfo: rpc.VideoInfo {
-			AuthorId: request.UserId,
+			AuthorId: req.UserId,
 			PlayUrl: playUrl,
 			CoverUrl: coverUrl,
 			FavoriteCount: 0,
 			CommentCount: 0,
-			Title: request.Title,
+			Title: req.Title,
 		},
 	}
-	mysql.Create(&info)
-	return
+	s.Db.Create(&info)
+	return resp, nil
 }
 
 // UpdateCommentCount implements the PublishServiceImpl interface.
-func (s *PublishServiceImpl) UpdateCommentCount(ctx context.Context, videoId int64, newCommentCount_ int64) (err error) {
-	return mysql.UpdateCommentCount(videoId, newCommentCount_)
+func (s *PublishServiceImpl) UpdateCommentCount(ctx context.Context, videoId int64, addCount int64) (err error) {
+	return s.Db.UpdateCommentCount(videoId, addCount)
 }
 
 // UpdateFavoriteCount implements the PublishServiceImpl interface.
-func (s *PublishServiceImpl) UpdateFavoriteCount(ctx context.Context, videoId int64, newFavoriteCount_ int64) (err error) {
-	return mysql.UpdateFavoriteCount(videoId, newFavoriteCount_)
+func (s *PublishServiceImpl) UpdateFavoriteCount(ctx context.Context, videoId int64, addCount int64) (err error) {
+	return s.Db.UpdateFavoriteCount(videoId, addCount)
 }
 
 // QueryRecentVideoInfos implements the PublishServiceImpl interface.
 func (s *PublishServiceImpl) QueryRecentVideoInfos(ctx context.Context, startTime int64, limit int64) (resp []*rpc.VideoInfo, err error) {
-	result, err := mysql.QueryRecentVideoInfos(startTime, limit)
+	// 实现Feed获取视频的功能
+	result, err := s.Db.QueryRecentVideoInfos(startTime, limit)
 	if err != nil {
 		return nil, err
 	}
+
 	resp = make([]*rpc.VideoInfo, len(result))
 	for i, v := range result {
 		resp[i] = &v.VideoInfo
+		resp[i].CreateTime = v.CreatedAt.UnixMilli()
 	}
-	return 
+	return
 }
 
 // VideoInfo implements the PublishServiceImpl interface.
 func (s *PublishServiceImpl) VideoInfo(ctx context.Context, videoId int64) (resp *rpc.VideoInfo, err error) {
-	// TODO: Your code here...
-	return mysql.GetVideoInfo(videoId)
+	info, err := s.Db.QueryById(videoId)
+	klog.Debug(info, err)
+	if err != nil {
+		return nil, err
+	}
+	return &info.VideoInfo, nil
 }

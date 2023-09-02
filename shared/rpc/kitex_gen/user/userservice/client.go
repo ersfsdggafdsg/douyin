@@ -16,8 +16,10 @@ type Client interface {
 	Register(ctx context.Context, req *user.DouyinUserRegisterRequest, callOptions ...callopt.Option) (r *user.DouyinUserRegisterResponse, err error)
 	UserInfo(ctx context.Context, req *user.DouyinUserRequest, callOptions ...callopt.Option) (r *user.DouyinUserResponse, err error)
 	GetUserInfo(ctx context.Context, userId int64, callOptions ...callopt.Option) (r *rpc.UserInfo, err error)
-	UpdateFavoritedCount(ctx context.Context, userId int64, newFavoritedCount_ int64, callOptions ...callopt.Option) (err error)
-	UpdateFollowingAndFollowerCount(ctx context.Context, userId int64, newFollowingCount_ int64, newFollowerCount_ int64, callOptions ...callopt.Option) (err error)
+	UpdateFavoritedCount(ctx context.Context, userId int64, addCount int64, callOptions ...callopt.Option) (err error)
+	UpdateFollowingCount(ctx context.Context, userId int64, addCount int64, callOptions ...callopt.Option) (err error)
+	UpdateFollowerCount(ctx context.Context, userId int64, addCount int64, callOptions ...callopt.Option) (err error)
+	UpdateWorkCount(ctx context.Context, userId int64, addCount int64, callOptions ...callopt.Option) (err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -69,12 +71,22 @@ func (p *kUserServiceClient) GetUserInfo(ctx context.Context, userId int64, call
 	return p.kClient.GetUserInfo(ctx, userId)
 }
 
-func (p *kUserServiceClient) UpdateFavoritedCount(ctx context.Context, userId int64, newFavoritedCount_ int64, callOptions ...callopt.Option) (err error) {
+func (p *kUserServiceClient) UpdateFavoritedCount(ctx context.Context, userId int64, addCount int64, callOptions ...callopt.Option) (err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.UpdateFavoritedCount(ctx, userId, newFavoritedCount_)
+	return p.kClient.UpdateFavoritedCount(ctx, userId, addCount)
 }
 
-func (p *kUserServiceClient) UpdateFollowingAndFollowerCount(ctx context.Context, userId int64, newFollowingCount_ int64, newFollowerCount_ int64, callOptions ...callopt.Option) (err error) {
+func (p *kUserServiceClient) UpdateFollowingCount(ctx context.Context, userId int64, addCount int64, callOptions ...callopt.Option) (err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.UpdateFollowingAndFollowerCount(ctx, userId, newFollowingCount_, newFollowerCount_)
+	return p.kClient.UpdateFollowingCount(ctx, userId, addCount)
+}
+
+func (p *kUserServiceClient) UpdateFollowerCount(ctx context.Context, userId int64, addCount int64, callOptions ...callopt.Option) (err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.UpdateFollowerCount(ctx, userId, addCount)
+}
+
+func (p *kUserServiceClient) UpdateWorkCount(ctx context.Context, userId int64, addCount int64, callOptions ...callopt.Option) (err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.UpdateWorkCount(ctx, userId, addCount)
 }

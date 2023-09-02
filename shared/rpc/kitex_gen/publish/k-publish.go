@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-	"douyin/shared/rpc/kitex_gen/base"
 	"douyin/shared/rpc/kitex_gen/rpc"
+	"douyin/shared/rpc/kitex_gen/base"
 	"github.com/apache/thrift/lib/go/thrift"
 	"github.com/cloudwego/kitex/pkg/protocol/bthrift"
 )
@@ -1429,7 +1429,7 @@ func (p *PublishServiceUpdateCommentCountArgs) FastReadField2(buf []byte) (int, 
 	} else {
 		offset += l
 
-		p.NewCommentCount_ = v
+		p.AddCount = v
 
 	}
 	return offset, nil
@@ -1475,8 +1475,8 @@ func (p *PublishServiceUpdateCommentCountArgs) fastWriteField1(buf []byte, binar
 
 func (p *PublishServiceUpdateCommentCountArgs) fastWriteField2(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "newCommentCount", thrift.I64, 2)
-	offset += bthrift.Binary.WriteI64(buf[offset:], p.NewCommentCount_)
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "addCount", thrift.I64, 2)
+	offset += bthrift.Binary.WriteI64(buf[offset:], p.AddCount)
 
 	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
 	return offset
@@ -1493,8 +1493,8 @@ func (p *PublishServiceUpdateCommentCountArgs) field1Length() int {
 
 func (p *PublishServiceUpdateCommentCountArgs) field2Length() int {
 	l := 0
-	l += bthrift.Binary.FieldBeginLength("newCommentCount", thrift.I64, 2)
-	l += bthrift.Binary.I64Length(p.NewCommentCount_)
+	l += bthrift.Binary.FieldBeginLength("addCount", thrift.I64, 2)
+	l += bthrift.Binary.I64Length(p.AddCount)
 
 	l += bthrift.Binary.FieldEndLength()
 	return l
@@ -1686,7 +1686,7 @@ func (p *PublishServiceUpdateFavoriteCountArgs) FastReadField2(buf []byte) (int,
 	} else {
 		offset += l
 
-		p.NewFavoriteCount_ = v
+		p.AddCount = v
 
 	}
 	return offset, nil
@@ -1732,8 +1732,8 @@ func (p *PublishServiceUpdateFavoriteCountArgs) fastWriteField1(buf []byte, bina
 
 func (p *PublishServiceUpdateFavoriteCountArgs) fastWriteField2(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "newFavoriteCount", thrift.I64, 2)
-	offset += bthrift.Binary.WriteI64(buf[offset:], p.NewFavoriteCount_)
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "addCount", thrift.I64, 2)
+	offset += bthrift.Binary.WriteI64(buf[offset:], p.AddCount)
 
 	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
 	return offset
@@ -1750,8 +1750,8 @@ func (p *PublishServiceUpdateFavoriteCountArgs) field1Length() int {
 
 func (p *PublishServiceUpdateFavoriteCountArgs) field2Length() int {
 	l := 0
-	l += bthrift.Binary.FieldBeginLength("newFavoriteCount", thrift.I64, 2)
-	l += bthrift.Binary.I64Length(p.NewFavoriteCount_)
+	l += bthrift.Binary.FieldBeginLength("addCount", thrift.I64, 2)
+	l += bthrift.Binary.I64Length(p.AddCount)
 
 	l += bthrift.Binary.FieldEndLength()
 	return l

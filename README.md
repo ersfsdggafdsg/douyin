@@ -31,3 +31,11 @@
 ## cmd/api
 
 如果更新了`idl/http`下的protobuf文件，一定要执行`api-gen`来更新API网关
+
+## rabbitmq安装
+
+```shell
+# On arch linux
+sudo pacman -S rabbitmq
+sudo rabbitmq-plugins enable --offline rabbitmq_peer_discovery_consul
+```

@@ -80,7 +80,7 @@ func newPublishServicePublishActionResult() interface{} {
 func updateCommentCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*publish.PublishServiceUpdateCommentCountArgs)
 
-	err := handler.(publish.PublishService).UpdateCommentCount(ctx, realArg.VideoId, realArg.NewCommentCount_)
+	err := handler.(publish.PublishService).UpdateCommentCount(ctx, realArg.VideoId, realArg.AddCount)
 	if err != nil {
 		return err
 	}
@@ -98,7 +98,7 @@ func newPublishServiceUpdateCommentCountResult() interface{} {
 func updateFavoriteCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*publish.PublishServiceUpdateFavoriteCountArgs)
 
-	err := handler.(publish.PublishService).UpdateFavoriteCount(ctx, realArg.VideoId, realArg.NewFavoriteCount_)
+	err := handler.(publish.PublishService).UpdateFavoriteCount(ctx, realArg.VideoId, realArg.AddCount)
 	if err != nil {
 		return err
 	}
@@ -179,10 +179,10 @@ func (p *kClient) PublishAction(ctx context.Context, request *publish.DouyinPubl
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) UpdateCommentCount(ctx context.Context, videoId int64, newCommentCount_ int64) (err error) {
+func (p *kClient) UpdateCommentCount(ctx context.Context, videoId int64, addCount int64) (err error) {
 	var _args publish.PublishServiceUpdateCommentCountArgs
 	_args.VideoId = videoId
-	_args.NewCommentCount_ = newCommentCount_
+	_args.AddCount = addCount
 	var _result publish.PublishServiceUpdateCommentCountResult
 	if err = p.c.Call(ctx, "UpdateCommentCount", &_args, &_result); err != nil {
 		return
@@ -190,10 +190,10 @@ func (p *kClient) UpdateCommentCount(ctx context.Context, videoId int64, newComm
 	return nil
 }
 
-func (p *kClient) UpdateFavoriteCount(ctx context.Context, videoId int64, newFavoriteCount_ int64) (err error) {
+func (p *kClient) UpdateFavoriteCount(ctx context.Context, videoId int64, addCount int64) (err error) {
 	var _args publish.PublishServiceUpdateFavoriteCountArgs
 	_args.VideoId = videoId
-	_args.NewFavoriteCount_ = newFavoriteCount_
+	_args.AddCount = addCount
 	var _result publish.PublishServiceUpdateFavoriteCountResult
 	if err = p.c.Call(ctx, "UpdateFavoriteCount", &_args, &_result); err != nil {
 		return

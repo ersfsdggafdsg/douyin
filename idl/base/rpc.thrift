@@ -9,6 +9,7 @@ struct VideoInfo {
 	5: i64 favorite_count
 	6: i64 comment_count
 	7: string title
+	8: i64 create_time
 }
 
 // 用户信息

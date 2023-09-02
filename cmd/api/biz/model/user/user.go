@@ -1352,10 +1352,11 @@ func (p *DouyinUserResponse) String() string {
 }
 
 type UserService interface {
+	// 登录
 	Login(ctx context.Context, req *DouyinUserLoginRequest) (r *DouyinUserLoginResponse, err error)
-
+	// 注册
 	Register(ctx context.Context, req *DouyinUserRegisterRequest) (r *DouyinUserRegisterResponse, err error)
-
+	// 查询用户信息
 	UserInfo(ctx context.Context, req *DouyinUserRequest) (r *DouyinUserResponse, err error)
 }
 

@@ -19,6 +19,7 @@ func InitClient() (commentservice.Client) {
 	// create a new client
 	c, err := commentservice.NewClient(
 		"comment.srv",
+		client.WithHostPorts("0.0.0.0:8880"),
 		client.WithResolver(r),                                     // service discovery
 		client.WithLoadBalancer(loadbalance.NewWeightedBalancer()), // load balance
 		client.WithMuxConnection(1),                                // multiplexing

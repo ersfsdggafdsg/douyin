@@ -3,12 +3,11 @@
 package comment
 
 import (
-	"douyin/shared/rpc/kitex_gen/base"
-	
 	"bytes"
 	"fmt"
 	"reflect"
 	"strings"
+	"douyin/shared/rpc/kitex_gen/base"
 
 	"github.com/apache/thrift/lib/go/thrift"
 

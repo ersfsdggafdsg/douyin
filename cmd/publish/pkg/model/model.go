@@ -7,10 +7,11 @@ import (
 )
 
 type VideoInfo struct {
+	// 这使用了嵌入，使得程序有类似于继承一般的用法
 	rpc.VideoInfo
-	DeleteAt gorm.DeletedAt
-	CreateAt time.Time
-	UpdateAt time.Time
+	DeletedAt gorm.DeletedAt
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (VideoInfo)TableName() string {

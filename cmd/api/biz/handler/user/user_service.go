@@ -4,13 +4,14 @@ package user
 
 import (
 	"context"
-	"douyin/shared/config"
-	"douyin/shared/tools"
-	kuser "douyin/shared/rpc/kitex_gen/user"
-	"douyin/cmd/api/pkg/errhandler"
 	user "douyin/cmd/api/biz/model/user"
+	"douyin/cmd/api/pkg/errhandler"
+	"douyin/shared/config"
+	kuser "douyin/shared/rpc/kitex_gen/user"
+	"douyin/shared/utils/errno"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
 
@@ -21,29 +22,23 @@ func Login(ctx context.Context, c *app.RequestContext) {
 	var req user.DouyinUserLoginRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		errhandler.ErrorResponse(err.Error(), errno.BadRequestCode, c)
 		return
 	}
 
 	resp, err := config.Clients.User.Login(
 		ctx,
-		&kuser.DouyinUserLoginRequest {
+		&kuser.DouyinUserLoginRequest{
 			Username: req.Username,
 			Password: req.Password,
 		})
 	if err != nil {
+		hlog.Error("user:", err)
 		errhandler.RPCCallErrorResponse("user",
-			err, consts.StatusInternalServerError, c)
+			errno.ServiceErrCode, c)
 		return
 	}
-	
-	resp.Token, err = tools.GenerateToken(resp.UserId)
-	if err != nil {
-		errhandler.GenerateTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
-	
+
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -51,24 +46,26 @@ func Login(ctx context.Context, c *app.RequestContext) {
 // @router /douyin/user/register [POST]
 func Register(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req kuser.DouyinUserRegisterRequest
-	err = c.BindAndValidate(&req)
+	// 为什么参数一样却不能够使用kitex那边的RegisterRequest?
+	// 下面的BindAndValidate会检查变量类型，Bind也试过了，不行。
+	// Hertz这么设计，可能是出于安全考虑吧。（但是gin可以）
+	var r user.DouyinUserRegisterRequest
+	err = c.BindAndValidate(&r)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		errhandler.ErrorResponse(err.Error(), errno.BadRequestCode, c)
 		return
+	}
+
+	req := kuser.DouyinUserRegisterRequest{
+		Username: r.Username,
+		Password: r.Password,
 	}
 
 	resp, err := config.Clients.User.Register(ctx, &req)
 	if err != nil {
-		errhandler.RPCCallErrorResponse("register",
-			err, consts.StatusInternalServerError, c)
-		return
-	}
-
-	resp.Token, err = tools.GenerateToken(resp.UserId)
-	if err != nil {
-		errhandler.GenerateTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
+		hlog.Error("user:", err)
+		errhandler.RPCCallErrorResponse("user",
+			errno.ServiceErrCode, c)
 		return
 	}
 
@@ -79,21 +76,25 @@ func Register(ctx context.Context, c *app.RequestContext) {
 // @router /douyin/user [GET]
 func UserInfo(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req kuser.DouyinUserRequest
+	var req user.DouyinUserRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		errhandler.ErrorResponse(err.Error(), errno.BadRequestCode, c)
 		return
 	}
+	hlog.Info("获取用户信息：", req.UserID)
 
-	resp, err := config.Clients.User.UserInfo(ctx, &req)
+	userId := ctx.Value("uid").(int64)
+
+	resp, err := config.Clients.User.UserInfo(
+		ctx,
+		&kuser.DouyinUserRequest{UserId: userId},
+	)
 	if err != nil {
-		errhandler.RPCCallErrorResponse("register",
-			err, consts.StatusInternalServerError, c)
+		errhandler.RPCCallErrorResponse("Internal error",
+			errno.ServiceErrCode, c)
 		return
 	}
 
-	// 由于查询的是指定用户自己的信息，所以不需要专门去查询是否关注了
-	resp.User.IsFollow = false
 	c.JSON(consts.StatusOK, resp)
 }

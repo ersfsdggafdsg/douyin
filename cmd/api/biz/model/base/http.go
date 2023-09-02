@@ -1719,8 +1719,10 @@ type FriendUser struct {
 	TotalFavorited  int64  `thrift:"total_favorited,9" form:"total_favorited" json:"total_favorited" query:"total_favorited"`
 	WorkCount       int64  `thrift:"work_count,10" form:"work_count" json:"work_count" query:"work_count"`
 	FavoriteCount   int64  `thrift:"favorite_count,11" form:"favorite_count" json:"favorite_count" query:"favorite_count"`
-	Message         string `thrift:"message,12" form:"message" json:"message" query:"message"`
-	MsgType         int64  `thrift:"msgType,13" form:"msgType" json:"msgType" query:"msgType"`
+	// 和该好友的最新聊天消息
+	Message string `thrift:"message,12" form:"message" json:"message" query:"message"`
+	// message消息的类型，0 => 当前请求用户接收的消息， 1 => 当前请求用户发送的消息
+	MsgType int64 `thrift:"msgType,13" form:"msgType" json:"msgType" query:"msgType"`
 }
 
 func NewFriendUser() *FriendUser {

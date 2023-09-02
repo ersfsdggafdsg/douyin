@@ -1602,9 +1602,13 @@ type UserService interface {
 
 	GetUserInfo(ctx context.Context, userId int64) (r *rpc.UserInfo, err error)
 
-	UpdateFavoritedCount(ctx context.Context, userId int64, newFavoritedCount_ int64) (err error)
+	UpdateFavoritedCount(ctx context.Context, userId int64, addCount int64) (err error)
 
-	UpdateFollowingAndFollowerCount(ctx context.Context, userId int64, newFollowingCount_ int64, newFollowerCount_ int64) (err error)
+	UpdateFollowingCount(ctx context.Context, userId int64, addCount int64) (err error)
+
+	UpdateFollowerCount(ctx context.Context, userId int64, addCount int64) (err error)
+
+	UpdateWorkCount(ctx context.Context, userId int64, addCount int64) (err error)
 }
 
 type UserServiceClient struct {
@@ -1669,23 +1673,42 @@ func (p *UserServiceClient) GetUserInfo(ctx context.Context, userId int64) (r *r
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *UserServiceClient) UpdateFavoritedCount(ctx context.Context, userId int64, newFavoritedCount_ int64) (err error) {
+func (p *UserServiceClient) UpdateFavoritedCount(ctx context.Context, userId int64, addCount int64) (err error) {
 	var _args UserServiceUpdateFavoritedCountArgs
 	_args.UserId = userId
-	_args.NewFavoritedCount_ = newFavoritedCount_
+	_args.AddCount = addCount
 	var _result UserServiceUpdateFavoritedCountResult
 	if err = p.Client_().Call(ctx, "UpdateFavoritedCount", &_args, &_result); err != nil {
 		return
 	}
 	return nil
 }
-func (p *UserServiceClient) UpdateFollowingAndFollowerCount(ctx context.Context, userId int64, newFollowingCount_ int64, newFollowerCount_ int64) (err error) {
-	var _args UserServiceUpdateFollowingAndFollowerCountArgs
+func (p *UserServiceClient) UpdateFollowingCount(ctx context.Context, userId int64, addCount int64) (err error) {
+	var _args UserServiceUpdateFollowingCountArgs
 	_args.UserId = userId
-	_args.NewFollowingCount_ = newFollowingCount_
-	_args.NewFollowerCount_ = newFollowerCount_
-	var _result UserServiceUpdateFollowingAndFollowerCountResult
-	if err = p.Client_().Call(ctx, "UpdateFollowingAndFollowerCount", &_args, &_result); err != nil {
+	_args.AddCount = addCount
+	var _result UserServiceUpdateFollowingCountResult
+	if err = p.Client_().Call(ctx, "UpdateFollowingCount", &_args, &_result); err != nil {
+		return
+	}
+	return nil
+}
+func (p *UserServiceClient) UpdateFollowerCount(ctx context.Context, userId int64, addCount int64) (err error) {
+	var _args UserServiceUpdateFollowerCountArgs
+	_args.UserId = userId
+	_args.AddCount = addCount
+	var _result UserServiceUpdateFollowerCountResult
+	if err = p.Client_().Call(ctx, "UpdateFollowerCount", &_args, &_result); err != nil {
+		return
+	}
+	return nil
+}
+func (p *UserServiceClient) UpdateWorkCount(ctx context.Context, userId int64, addCount int64) (err error) {
+	var _args UserServiceUpdateWorkCountArgs
+	_args.UserId = userId
+	_args.AddCount = addCount
+	var _result UserServiceUpdateWorkCountResult
+	if err = p.Client_().Call(ctx, "UpdateWorkCount", &_args, &_result); err != nil {
 		return
 	}
 	return nil
@@ -1716,7 +1739,9 @@ func NewUserServiceProcessor(handler UserService) *UserServiceProcessor {
 	self.AddToProcessorMap("UserInfo", &userServiceProcessorUserInfo{handler: handler})
 	self.AddToProcessorMap("GetUserInfo", &userServiceProcessorGetUserInfo{handler: handler})
 	self.AddToProcessorMap("UpdateFavoritedCount", &userServiceProcessorUpdateFavoritedCount{handler: handler})
-	self.AddToProcessorMap("UpdateFollowingAndFollowerCount", &userServiceProcessorUpdateFollowingAndFollowerCount{handler: handler})
+	self.AddToProcessorMap("UpdateFollowingCount", &userServiceProcessorUpdateFollowingCount{handler: handler})
+	self.AddToProcessorMap("UpdateFollowerCount", &userServiceProcessorUpdateFollowerCount{handler: handler})
+	self.AddToProcessorMap("UpdateWorkCount", &userServiceProcessorUpdateWorkCount{handler: handler})
 	return self
 }
 func (p *UserServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -1948,7 +1973,7 @@ func (p *userServiceProcessorUpdateFavoritedCount) Process(ctx context.Context, 
 	iprot.ReadMessageEnd()
 	var err2 error
 	result := UserServiceUpdateFavoritedCountResult{}
-	if err2 = p.handler.UpdateFavoritedCount(ctx, args.UserId, args.NewFavoritedCount_); err2 != nil {
+	if err2 = p.handler.UpdateFavoritedCount(ctx, args.UserId, args.AddCount); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UpdateFavoritedCount: "+err2.Error())
 		oprot.WriteMessageBegin("UpdateFavoritedCount", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
@@ -1974,16 +1999,16 @@ func (p *userServiceProcessorUpdateFavoritedCount) Process(ctx context.Context, 
 	return true, err
 }
 
-type userServiceProcessorUpdateFollowingAndFollowerCount struct {
+type userServiceProcessorUpdateFollowingCount struct {
 	handler UserService
 }
 
-func (p *userServiceProcessorUpdateFollowingAndFollowerCount) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := UserServiceUpdateFollowingAndFollowerCountArgs{}
+func (p *userServiceProcessorUpdateFollowingCount) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := UserServiceUpdateFollowingCountArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("UpdateFollowingAndFollowerCount", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("UpdateFollowingCount", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -1992,16 +2017,106 @@ func (p *userServiceProcessorUpdateFollowingAndFollowerCount) Process(ctx contex
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := UserServiceUpdateFollowingAndFollowerCountResult{}
-	if err2 = p.handler.UpdateFollowingAndFollowerCount(ctx, args.UserId, args.NewFollowingCount_, args.NewFollowerCount_); err2 != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UpdateFollowingAndFollowerCount: "+err2.Error())
-		oprot.WriteMessageBegin("UpdateFollowingAndFollowerCount", thrift.EXCEPTION, seqId)
+	result := UserServiceUpdateFollowingCountResult{}
+	if err2 = p.handler.UpdateFollowingCount(ctx, args.UserId, args.AddCount); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UpdateFollowingCount: "+err2.Error())
+		oprot.WriteMessageBegin("UpdateFollowingCount", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
 		return true, err2
 	}
-	if err2 = oprot.WriteMessageBegin("UpdateFollowingAndFollowerCount", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("UpdateFollowingCount", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type userServiceProcessorUpdateFollowerCount struct {
+	handler UserService
+}
+
+func (p *userServiceProcessorUpdateFollowerCount) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := UserServiceUpdateFollowerCountArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("UpdateFollowerCount", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := UserServiceUpdateFollowerCountResult{}
+	if err2 = p.handler.UpdateFollowerCount(ctx, args.UserId, args.AddCount); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UpdateFollowerCount: "+err2.Error())
+		oprot.WriteMessageBegin("UpdateFollowerCount", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	}
+	if err2 = oprot.WriteMessageBegin("UpdateFollowerCount", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type userServiceProcessorUpdateWorkCount struct {
+	handler UserService
+}
+
+func (p *userServiceProcessorUpdateWorkCount) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := UserServiceUpdateWorkCountArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("UpdateWorkCount", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := UserServiceUpdateWorkCountResult{}
+	if err2 = p.handler.UpdateWorkCount(ctx, args.UserId, args.AddCount); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UpdateWorkCount: "+err2.Error())
+		oprot.WriteMessageBegin("UpdateWorkCount", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	}
+	if err2 = oprot.WriteMessageBegin("UpdateWorkCount", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -3396,8 +3511,8 @@ func (p *UserServiceGetUserInfoResult) Field0DeepEqual(src *rpc.UserInfo) bool {
 }
 
 type UserServiceUpdateFavoritedCountArgs struct {
-	UserId             int64 `thrift:"userId,1" frugal:"1,default,i64" json:"userId"`
-	NewFavoritedCount_ int64 `thrift:"newFavoritedCount,2" frugal:"2,default,i64" json:"newFavoritedCount"`
+	UserId   int64 `thrift:"userId,1" frugal:"1,default,i64" json:"userId"`
+	AddCount int64 `thrift:"addCount,2" frugal:"2,default,i64" json:"addCount"`
 }
 
 func NewUserServiceUpdateFavoritedCountArgs() *UserServiceUpdateFavoritedCountArgs {
@@ -3412,19 +3527,19 @@ func (p *UserServiceUpdateFavoritedCountArgs) GetUserId() (v int64) {
 	return p.UserId
 }
 
-func (p *UserServiceUpdateFavoritedCountArgs) GetNewFavoritedCount_() (v int64) {
-	return p.NewFavoritedCount_
+func (p *UserServiceUpdateFavoritedCountArgs) GetAddCount() (v int64) {
+	return p.AddCount
 }
 func (p *UserServiceUpdateFavoritedCountArgs) SetUserId(val int64) {
 	p.UserId = val
 }
-func (p *UserServiceUpdateFavoritedCountArgs) SetNewFavoritedCount_(val int64) {
-	p.NewFavoritedCount_ = val
+func (p *UserServiceUpdateFavoritedCountArgs) SetAddCount(val int64) {
+	p.AddCount = val
 }
 
 var fieldIDToName_UserServiceUpdateFavoritedCountArgs = map[int16]string{
 	1: "userId",
-	2: "newFavoritedCount",
+	2: "addCount",
 }
 
 func (p *UserServiceUpdateFavoritedCountArgs) Read(iprot thrift.TProtocol) (err error) {
@@ -3509,7 +3624,7 @@ func (p *UserServiceUpdateFavoritedCountArgs) ReadField2(iprot thrift.TProtocol)
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		p.NewFavoritedCount_ = v
+		p.AddCount = v
 	}
 	return nil
 }
@@ -3565,10 +3680,10 @@ WriteFieldEndError:
 }
 
 func (p *UserServiceUpdateFavoritedCountArgs) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("newFavoritedCount", thrift.I64, 2); err != nil {
+	if err = oprot.WriteFieldBegin("addCount", thrift.I64, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.NewFavoritedCount_); err != nil {
+	if err := oprot.WriteI64(p.AddCount); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3597,7 +3712,7 @@ func (p *UserServiceUpdateFavoritedCountArgs) DeepEqual(ano *UserServiceUpdateFa
 	if !p.Field1DeepEqual(ano.UserId) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.NewFavoritedCount_) {
+	if !p.Field2DeepEqual(ano.AddCount) {
 		return false
 	}
 	return true
@@ -3612,7 +3727,7 @@ func (p *UserServiceUpdateFavoritedCountArgs) Field1DeepEqual(src int64) bool {
 }
 func (p *UserServiceUpdateFavoritedCountArgs) Field2DeepEqual(src int64) bool {
 
-	if p.NewFavoritedCount_ != src {
+	if p.AddCount != src {
 		return false
 	}
 	return true
@@ -3712,48 +3827,39 @@ func (p *UserServiceUpdateFavoritedCountResult) DeepEqual(ano *UserServiceUpdate
 	return true
 }
 
-type UserServiceUpdateFollowingAndFollowerCountArgs struct {
-	UserId             int64 `thrift:"userId,1" frugal:"1,default,i64" json:"userId"`
-	NewFollowingCount_ int64 `thrift:"newFollowingCount,2" frugal:"2,default,i64" json:"newFollowingCount"`
-	NewFollowerCount_  int64 `thrift:"newFollowerCount,3" frugal:"3,default,i64" json:"newFollowerCount"`
+type UserServiceUpdateFollowingCountArgs struct {
+	UserId   int64 `thrift:"userId,1" frugal:"1,default,i64" json:"userId"`
+	AddCount int64 `thrift:"addCount,2" frugal:"2,default,i64" json:"addCount"`
 }
 
-func NewUserServiceUpdateFollowingAndFollowerCountArgs() *UserServiceUpdateFollowingAndFollowerCountArgs {
-	return &UserServiceUpdateFollowingAndFollowerCountArgs{}
+func NewUserServiceUpdateFollowingCountArgs() *UserServiceUpdateFollowingCountArgs {
+	return &UserServiceUpdateFollowingCountArgs{}
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) InitDefault() {
-	*p = UserServiceUpdateFollowingAndFollowerCountArgs{}
+func (p *UserServiceUpdateFollowingCountArgs) InitDefault() {
+	*p = UserServiceUpdateFollowingCountArgs{}
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) GetUserId() (v int64) {
+func (p *UserServiceUpdateFollowingCountArgs) GetUserId() (v int64) {
 	return p.UserId
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) GetNewFollowingCount_() (v int64) {
-	return p.NewFollowingCount_
+func (p *UserServiceUpdateFollowingCountArgs) GetAddCount() (v int64) {
+	return p.AddCount
 }
-
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) GetNewFollowerCount_() (v int64) {
-	return p.NewFollowerCount_
-}
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) SetUserId(val int64) {
+func (p *UserServiceUpdateFollowingCountArgs) SetUserId(val int64) {
 	p.UserId = val
 }
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) SetNewFollowingCount_(val int64) {
-	p.NewFollowingCount_ = val
-}
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) SetNewFollowerCount_(val int64) {
-	p.NewFollowerCount_ = val
+func (p *UserServiceUpdateFollowingCountArgs) SetAddCount(val int64) {
+	p.AddCount = val
 }
 
-var fieldIDToName_UserServiceUpdateFollowingAndFollowerCountArgs = map[int16]string{
+var fieldIDToName_UserServiceUpdateFollowingCountArgs = map[int16]string{
 	1: "userId",
-	2: "newFollowingCount",
-	3: "newFollowerCount",
+	2: "addCount",
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *UserServiceUpdateFollowingCountArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -3792,16 +3898,6 @@ func (p *UserServiceUpdateFollowingAndFollowerCountArgs) Read(iprot thrift.TProt
 					goto SkipFieldError
 				}
 			}
-		case 3:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField3(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -3822,7 +3918,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UserServiceUpdateFollowingAndFollowerCountArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UserServiceUpdateFollowingCountArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -3832,7 +3928,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *UserServiceUpdateFollowingCountArgs) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
@@ -3841,27 +3937,18 @@ func (p *UserServiceUpdateFollowingAndFollowerCountArgs) ReadField1(iprot thrift
 	return nil
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) ReadField2(iprot thrift.TProtocol) error {
+func (p *UserServiceUpdateFollowingCountArgs) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		p.NewFollowingCount_ = v
+		p.AddCount = v
 	}
 	return nil
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) ReadField3(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		p.NewFollowerCount_ = v
-	}
-	return nil
-}
-
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *UserServiceUpdateFollowingCountArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("UpdateFollowingAndFollowerCount_args"); err != nil {
+	if err = oprot.WriteStructBegin("UpdateFollowingCount_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -3871,10 +3958,6 @@ func (p *UserServiceUpdateFollowingAndFollowerCountArgs) Write(oprot thrift.TPro
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
-			goto WriteFieldError
-		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
 			goto WriteFieldError
 		}
 
@@ -3896,7 +3979,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *UserServiceUpdateFollowingCountArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("userId", thrift.I64, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -3913,11 +3996,11 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("newFollowingCount", thrift.I64, 2); err != nil {
+func (p *UserServiceUpdateFollowingCountArgs) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("addCount", thrift.I64, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.NewFollowingCount_); err != nil {
+	if err := oprot.WriteI64(p.AddCount); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3930,31 +4013,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("newFollowerCount", thrift.I64, 3); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.NewFollowerCount_); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
-}
-
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) String() string {
+func (p *UserServiceUpdateFollowingCountArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UserServiceUpdateFollowingAndFollowerCountArgs(%+v)", *p)
+	return fmt.Sprintf("UserServiceUpdateFollowingCountArgs(%+v)", *p)
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) DeepEqual(ano *UserServiceUpdateFollowingAndFollowerCountArgs) bool {
+func (p *UserServiceUpdateFollowingCountArgs) DeepEqual(ano *UserServiceUpdateFollowingCountArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -3963,51 +4029,41 @@ func (p *UserServiceUpdateFollowingAndFollowerCountArgs) DeepEqual(ano *UserServ
 	if !p.Field1DeepEqual(ano.UserId) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.NewFollowingCount_) {
-		return false
-	}
-	if !p.Field3DeepEqual(ano.NewFollowerCount_) {
+	if !p.Field2DeepEqual(ano.AddCount) {
 		return false
 	}
 	return true
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) Field1DeepEqual(src int64) bool {
+func (p *UserServiceUpdateFollowingCountArgs) Field1DeepEqual(src int64) bool {
 
 	if p.UserId != src {
 		return false
 	}
 	return true
 }
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) Field2DeepEqual(src int64) bool {
+func (p *UserServiceUpdateFollowingCountArgs) Field2DeepEqual(src int64) bool {
 
-	if p.NewFollowingCount_ != src {
-		return false
-	}
-	return true
-}
-func (p *UserServiceUpdateFollowingAndFollowerCountArgs) Field3DeepEqual(src int64) bool {
-
-	if p.NewFollowerCount_ != src {
+	if p.AddCount != src {
 		return false
 	}
 	return true
 }
 
-type UserServiceUpdateFollowingAndFollowerCountResult struct {
+type UserServiceUpdateFollowingCountResult struct {
 }
 
-func NewUserServiceUpdateFollowingAndFollowerCountResult() *UserServiceUpdateFollowingAndFollowerCountResult {
-	return &UserServiceUpdateFollowingAndFollowerCountResult{}
+func NewUserServiceUpdateFollowingCountResult() *UserServiceUpdateFollowingCountResult {
+	return &UserServiceUpdateFollowingCountResult{}
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountResult) InitDefault() {
-	*p = UserServiceUpdateFollowingAndFollowerCountResult{}
+func (p *UserServiceUpdateFollowingCountResult) InitDefault() {
+	*p = UserServiceUpdateFollowingCountResult{}
 }
 
-var fieldIDToName_UserServiceUpdateFollowingAndFollowerCountResult = map[int16]string{}
+var fieldIDToName_UserServiceUpdateFollowingCountResult = map[int16]string{}
 
-func (p *UserServiceUpdateFollowingAndFollowerCountResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *UserServiceUpdateFollowingCountResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -4050,8 +4106,8 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountResult) Write(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteStructBegin("UpdateFollowingAndFollowerCount_result"); err != nil {
+func (p *UserServiceUpdateFollowingCountResult) Write(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteStructBegin("UpdateFollowingCount_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -4072,14 +4128,648 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountResult) String() string {
+func (p *UserServiceUpdateFollowingCountResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UserServiceUpdateFollowingAndFollowerCountResult(%+v)", *p)
+	return fmt.Sprintf("UserServiceUpdateFollowingCountResult(%+v)", *p)
 }
 
-func (p *UserServiceUpdateFollowingAndFollowerCountResult) DeepEqual(ano *UserServiceUpdateFollowingAndFollowerCountResult) bool {
+func (p *UserServiceUpdateFollowingCountResult) DeepEqual(ano *UserServiceUpdateFollowingCountResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	return true
+}
+
+type UserServiceUpdateFollowerCountArgs struct {
+	UserId   int64 `thrift:"userId,1" frugal:"1,default,i64" json:"userId"`
+	AddCount int64 `thrift:"addCount,2" frugal:"2,default,i64" json:"addCount"`
+}
+
+func NewUserServiceUpdateFollowerCountArgs() *UserServiceUpdateFollowerCountArgs {
+	return &UserServiceUpdateFollowerCountArgs{}
+}
+
+func (p *UserServiceUpdateFollowerCountArgs) InitDefault() {
+	*p = UserServiceUpdateFollowerCountArgs{}
+}
+
+func (p *UserServiceUpdateFollowerCountArgs) GetUserId() (v int64) {
+	return p.UserId
+}
+
+func (p *UserServiceUpdateFollowerCountArgs) GetAddCount() (v int64) {
+	return p.AddCount
+}
+func (p *UserServiceUpdateFollowerCountArgs) SetUserId(val int64) {
+	p.UserId = val
+}
+func (p *UserServiceUpdateFollowerCountArgs) SetAddCount(val int64) {
+	p.AddCount = val
+}
+
+var fieldIDToName_UserServiceUpdateFollowerCountArgs = map[int16]string{
+	1: "userId",
+	2: "addCount",
+}
+
+func (p *UserServiceUpdateFollowerCountArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UserServiceUpdateFollowerCountArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *UserServiceUpdateFollowerCountArgs) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.UserId = v
+	}
+	return nil
+}
+
+func (p *UserServiceUpdateFollowerCountArgs) ReadField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.AddCount = v
+	}
+	return nil
+}
+
+func (p *UserServiceUpdateFollowerCountArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("UpdateFollowerCount_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *UserServiceUpdateFollowerCountArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("userId", thrift.I64, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.UserId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *UserServiceUpdateFollowerCountArgs) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("addCount", thrift.I64, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.AddCount); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *UserServiceUpdateFollowerCountArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceUpdateFollowerCountArgs(%+v)", *p)
+}
+
+func (p *UserServiceUpdateFollowerCountArgs) DeepEqual(ano *UserServiceUpdateFollowerCountArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.UserId) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.AddCount) {
+		return false
+	}
+	return true
+}
+
+func (p *UserServiceUpdateFollowerCountArgs) Field1DeepEqual(src int64) bool {
+
+	if p.UserId != src {
+		return false
+	}
+	return true
+}
+func (p *UserServiceUpdateFollowerCountArgs) Field2DeepEqual(src int64) bool {
+
+	if p.AddCount != src {
+		return false
+	}
+	return true
+}
+
+type UserServiceUpdateFollowerCountResult struct {
+}
+
+func NewUserServiceUpdateFollowerCountResult() *UserServiceUpdateFollowerCountResult {
+	return &UserServiceUpdateFollowerCountResult{}
+}
+
+func (p *UserServiceUpdateFollowerCountResult) InitDefault() {
+	*p = UserServiceUpdateFollowerCountResult{}
+}
+
+var fieldIDToName_UserServiceUpdateFollowerCountResult = map[int16]string{}
+
+func (p *UserServiceUpdateFollowerCountResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *UserServiceUpdateFollowerCountResult) Write(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteStructBegin("UpdateFollowerCount_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *UserServiceUpdateFollowerCountResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceUpdateFollowerCountResult(%+v)", *p)
+}
+
+func (p *UserServiceUpdateFollowerCountResult) DeepEqual(ano *UserServiceUpdateFollowerCountResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	return true
+}
+
+type UserServiceUpdateWorkCountArgs struct {
+	UserId   int64 `thrift:"userId,1" frugal:"1,default,i64" json:"userId"`
+	AddCount int64 `thrift:"addCount,2" frugal:"2,default,i64" json:"addCount"`
+}
+
+func NewUserServiceUpdateWorkCountArgs() *UserServiceUpdateWorkCountArgs {
+	return &UserServiceUpdateWorkCountArgs{}
+}
+
+func (p *UserServiceUpdateWorkCountArgs) InitDefault() {
+	*p = UserServiceUpdateWorkCountArgs{}
+}
+
+func (p *UserServiceUpdateWorkCountArgs) GetUserId() (v int64) {
+	return p.UserId
+}
+
+func (p *UserServiceUpdateWorkCountArgs) GetAddCount() (v int64) {
+	return p.AddCount
+}
+func (p *UserServiceUpdateWorkCountArgs) SetUserId(val int64) {
+	p.UserId = val
+}
+func (p *UserServiceUpdateWorkCountArgs) SetAddCount(val int64) {
+	p.AddCount = val
+}
+
+var fieldIDToName_UserServiceUpdateWorkCountArgs = map[int16]string{
+	1: "userId",
+	2: "addCount",
+}
+
+func (p *UserServiceUpdateWorkCountArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UserServiceUpdateWorkCountArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *UserServiceUpdateWorkCountArgs) ReadField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.UserId = v
+	}
+	return nil
+}
+
+func (p *UserServiceUpdateWorkCountArgs) ReadField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.AddCount = v
+	}
+	return nil
+}
+
+func (p *UserServiceUpdateWorkCountArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("UpdateWorkCount_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *UserServiceUpdateWorkCountArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("userId", thrift.I64, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.UserId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *UserServiceUpdateWorkCountArgs) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("addCount", thrift.I64, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.AddCount); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *UserServiceUpdateWorkCountArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceUpdateWorkCountArgs(%+v)", *p)
+}
+
+func (p *UserServiceUpdateWorkCountArgs) DeepEqual(ano *UserServiceUpdateWorkCountArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.UserId) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.AddCount) {
+		return false
+	}
+	return true
+}
+
+func (p *UserServiceUpdateWorkCountArgs) Field1DeepEqual(src int64) bool {
+
+	if p.UserId != src {
+		return false
+	}
+	return true
+}
+func (p *UserServiceUpdateWorkCountArgs) Field2DeepEqual(src int64) bool {
+
+	if p.AddCount != src {
+		return false
+	}
+	return true
+}
+
+type UserServiceUpdateWorkCountResult struct {
+}
+
+func NewUserServiceUpdateWorkCountResult() *UserServiceUpdateWorkCountResult {
+	return &UserServiceUpdateWorkCountResult{}
+}
+
+func (p *UserServiceUpdateWorkCountResult) InitDefault() {
+	*p = UserServiceUpdateWorkCountResult{}
+}
+
+var fieldIDToName_UserServiceUpdateWorkCountResult = map[int16]string{}
+
+func (p *UserServiceUpdateWorkCountResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *UserServiceUpdateWorkCountResult) Write(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteStructBegin("UpdateWorkCount_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *UserServiceUpdateWorkCountResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceUpdateWorkCountResult(%+v)", *p)
+}
+
+func (p *UserServiceUpdateWorkCountResult) DeepEqual(ano *UserServiceUpdateWorkCountResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {

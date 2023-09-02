@@ -3,6 +3,7 @@
 package publish
 
 import (
+	"douyin/cmd/api/pkg/middleware"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -22,11 +23,25 @@ func _publishMw() []app.HandlerFunc {
 }
 
 func _publishactionMw() []app.HandlerFunc {
+	// 操作投稿视频，必须登录
+	return []app.HandlerFunc{
+		middleware.NoOrWrongTokenAbort,
+	}
+}
+
+func _publishlistMw() []app.HandlerFunc {
+	// 查看自己所有的投稿，必须登录，请求是Token+UserId
+	return []app.HandlerFunc{
+		middleware.TokenUserIdSame,
+	}
+}
+
+func _actionMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
-func _publishlistMw() []app.HandlerFunc {
+func _listMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

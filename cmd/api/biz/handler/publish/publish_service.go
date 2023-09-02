@@ -4,13 +4,16 @@ package publish
 
 import (
 	"context"
-	"douyin/shared/config"
-	"douyin/shared/tools"
-	kpublish "douyin/shared/rpc/kitex_gen/publish"
 	"douyin/cmd/api/pkg/errhandler"
+	"douyin/shared/config"
+	kpublish "douyin/shared/rpc/kitex_gen/publish"
+	"douyin/shared/utils"
+	"douyin/shared/utils/errno"
 
 	publish "douyin/cmd/api/biz/model/publish"
+
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
 
@@ -21,32 +24,22 @@ func PublishList(ctx context.Context, c *app.RequestContext) {
 	var req publish.DouyinPublishListRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		errhandler.ErrorResponse(err.Error(), errno.BadRequestCode, c)
 		return
 	}
 
-	// Token字段不能够为空，因为要获取自己的发布列表
-	if req.Token == "" {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
-
-	token, err := tools.ParseToken(req.Token)
-	if err != nil {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
+	userId := ctx.Value("uid").(int64)
 
 	resp, err := config.Clients.Publish.PublishList(
 		ctx,
 		&kpublish.DouyinPublishListRequest{
-			UserId: token.Id,
+			UserId: userId,
 		})
 	if err != nil {
-		errhandler.RPCCallErrorResponse("comment",
-			err, consts.StatusInternalServerError, c)
+		hlog.Error("publish:", err)
+		errhandler.RPCCallErrorResponse("Internal error",
+			errno.ServiceErrCode, c)
+		return
 	}
 
 	c.JSON(consts.StatusOK, resp)
@@ -56,38 +49,50 @@ func PublishList(ctx context.Context, c *app.RequestContext) {
 // @router /douyin/publish/action [POST]
 func PublishAction(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req publish.DouyinPublishActionRequest
-	err = c.BindAndValidate(&req)
+	req, err := parse(ctx, c)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		errhandler.ErrorResponse(err.Error(), errno.BadRequestCode, c)
 		return
 	}
 
-	// Token字段不能够为空，因为是登录用户操作发布视频
-	if req.Token == "" {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
+	/* 虽然可以拦截，但是业务在Publish上
+	if len(req.Title) == 0 || len(req.Data) == 0 || req.UserId <= 0 {
+		hlog.Error("publish:", err)
+		errhandler.ErrorResponse("Not login!",
+			consts.StatusBadRequest, c)
 	}
+	*/
 
-	token, err := tools.ParseToken(req.Token)
+	resp, err := config.Clients.Publish.PublishAction(ctx, req)
 	if err != nil {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
+		hlog.Error("publish:", err)
+		errhandler.ErrorResponse("publish",
+			errno.ServiceErrCode, c)
 		return
-	}
-
-	resp, err := config.Clients.Publish.PublishAction(
-		ctx,
-		&kpublish.DouyinPublishActionRequest{
-			UserId: token.Id,
-			Data: req.Data,
-			Title: req.Title,
-		})
-	if err != nil {
-		errhandler.RPCCallErrorResponse("comment",
-			err, consts.StatusInternalServerError, c)
 	}
 
 	c.JSON(consts.StatusOK, resp)
+}
+
+func parse(ctx context.Context, c *app.RequestContext) (req *kpublish.DouyinPublishActionRequest, err error) {
+	req = new(kpublish.DouyinPublishActionRequest)
+	req.UserId = ctx.Value("uid").(int64)
+
+	title := c.PostForm("title")
+	if err != nil {
+		return
+	}
+
+	data, err := c.FormFile("data")
+	if err != nil {
+		return
+	}
+
+	req.Data, err = utils.ReadMultipart(data)
+	if err != nil {
+		return
+	}
+	req.Title = title
+
+	return
 }

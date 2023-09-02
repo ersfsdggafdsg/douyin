@@ -3,11 +3,12 @@
 package message
 
 import (
-	"douyin/shared/rpc/kitex_gen/common"
 	"bytes"
 	"fmt"
 	"reflect"
 	"strings"
+	"douyin/shared/rpc/kitex_gen/common"
+
 
 	"github.com/apache/thrift/lib/go/thrift"
 

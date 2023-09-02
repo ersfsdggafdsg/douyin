@@ -3,6 +3,7 @@
 package comment
 
 import (
+	"douyin/cmd/api/pkg/middleware"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -22,11 +23,25 @@ func _commentMw() []app.HandlerFunc {
 }
 
 func _commentactionMw() []app.HandlerFunc {
+	// 操作评论，必须登录
+	return []app.HandlerFunc{
+		middleware.NoOrWrongTokenAbort,
+	}
+}
+
+func _commentlistMw() []app.HandlerFunc {
+	// 获取评论列表，是否登录了，随便
+	return []app.HandlerFunc{
+		middleware.ParseTokenAndContinue,
+	}
+}
+
+func _actionMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
-func _commentlistMw() []app.HandlerFunc {
+func _listMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

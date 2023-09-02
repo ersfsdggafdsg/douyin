@@ -27,6 +27,8 @@ service FavoriteService {
 	douyin_favorite_action_response FavoriteAction(1: douyin_favorite_action_request req)
 
 	douyin_favorite_list_response FavoriteList(1: douyin_favorite_list_request req)
+	
+	bool IsFavorited(1: i64 user_id, 2: i64 video_id)
 
 }
 

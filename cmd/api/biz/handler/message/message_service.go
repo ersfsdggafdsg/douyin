@@ -4,13 +4,15 @@ package message
 
 import (
 	"context"
+	"douyin/shared/utils/errno"
 
-	"douyin/shared/config"
-	"douyin/shared/tools"
-	"douyin/cmd/api/pkg/errhandler"
-	kmessage "douyin/shared/rpc/kitex_gen/message"
 	message "douyin/cmd/api/biz/model/message"
+	"douyin/cmd/api/pkg/errhandler"
+	"douyin/shared/config"
+	kmessage "douyin/shared/rpc/kitex_gen/message"
+
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
 
@@ -21,34 +23,24 @@ func MessageList(ctx context.Context, c *app.RequestContext) {
 	var req message.DouyinMessageChatRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		errhandler.ErrorResponse(err.Error(), errno.BadRequestCode, c)
 		return
 	}
 
-	// Token字段不能够为空，因为要获取自己的聊天记录
-	if req.Token == "" {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
-
-	token, err := tools.ParseToken(req.Token)
-	if err != nil {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
+	userId := ctx.Value("uid").(int64)
 
 	resp, err := config.Clients.Message.MessageList(
 		ctx,
-		&kmessage.DouyinMessageChatRequest {
-			UserId: token.Id,
-			ToUserId: req.ToUserID,
+		&kmessage.DouyinMessageChatRequest{
+			UserId:     userId,
+			ToUserId:   req.ToUserID,
 			PreMsgTime: req.PreMsgTime,
 		})
 	if err != nil {
-		errhandler.RPCCallErrorResponse("comment",
-			err, consts.StatusInternalServerError, c)
+		hlog.Error("message:", err)
+		errhandler.RPCCallErrorResponse("message",
+			errno.ServiceErrCode, c)
+		return
 	}
 
 	c.JSON(consts.StatusOK, resp)
@@ -61,35 +53,25 @@ func MessageAction(ctx context.Context, c *app.RequestContext) {
 	var req message.DouyinMessageActionRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		errhandler.ErrorResponse(err.Error(), errno.BadRequestCode, c)
 		return
 	}
 
-	// Token字段不能够为空，因为要获取自己的聊天记录
-	if req.Token == "" {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
-
-	token, err := tools.ParseToken(req.Token)
-	if err != nil {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
+	userId := ctx.Value("uid").(int64)
 
 	resp, err := config.Clients.Message.MessageAction(
 		ctx,
-		&kmessage.DouyinMessageActionRequest {
-			UserId: token.Id,
-			ToUserId: req.ToUserID,
+		&kmessage.DouyinMessageActionRequest{
+			UserId:     userId,
+			ToUserId:   req.ToUserID,
 			ActionType: req.ActionType,
-			Content: req.Content,
+			Content:    req.Content,
 		})
 	if err != nil {
-		errhandler.RPCCallErrorResponse("comment",
-			err, consts.StatusInternalServerError, c)
+		hlog.Error("message:", err)
+		errhandler.RPCCallErrorResponse("message",
+			errno.ServiceErrCode, c)
+		return
 	}
 
 	c.JSON(consts.StatusOK, resp)

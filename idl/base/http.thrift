@@ -56,6 +56,6 @@ struct FriendUser {
   9: i64 total_favorited
   10: i64 work_count
   11: i64 favorite_count
-  12: string message
-  13: i64 msgType
+  12: string message // 和该好友的最新聊天消息
+  13: i64 msgType // message消息的类型，0 => 当前请求用户接收的消息， 1 => 当前请求用户发送的消息
 }

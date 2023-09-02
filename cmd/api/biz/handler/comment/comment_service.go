@@ -4,52 +4,45 @@ package comment
 
 import (
 	"context"
-	"douyin/shared/config"
-	"douyin/shared/tools"
 	comment "douyin/cmd/api/biz/model/comment"
-	kcomment "douyin/shared/rpc/kitex_gen/comment"
 	"douyin/cmd/api/pkg/errhandler"
+	"douyin/shared/config"
+	kcomment "douyin/shared/rpc/kitex_gen/comment"
+	"douyin/shared/utils/errno"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
 
 // CommentAction .
 // @router /douyin/comment/action [POST]
 func CommentAction(ctx context.Context, c *app.RequestContext) {
+	// WARN: 必须填上comment_id，否则下面的BindAndValidate会出错！
 	var err error
 	var req comment.DouyinCommentActionRequest
-	err = c.BindAndValidate(&req)
+	err = c.Bind(&req)
+	c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		errhandler.ErrorResponse(err.Error(), errno.BadRequestCode, c)
 		return
 	}
 
-	// Token字段不能够为空，因为是登录用户对评论进行操作
-	if req.Token == "" {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
-
-	token, err := tools.ParseToken(req.Token)
-	if err != nil {
-		errhandler.ParseTokenErrorResponse(
-			err, consts.StatusBadRequest, c)
-		return
-	}
+	userId := ctx.Value("uid").(int64)
 
 	resp, err := config.Clients.Comment.CommentAction(
 		ctx,
-		&kcomment.DouyinCommentActionRequest {
-			UserId: token.Id,
-			VideoId: req.VideoID,
-			ActionType: req.ActionType,
+		&kcomment.DouyinCommentActionRequest{
+			UserId:      userId,
+			VideoId:     req.VideoID,
+			ActionType:  req.ActionType,
 			CommentText: req.CommentText,
-			CommentId: req.CommentID,
+			CommentId:   req.CommentID,
 		})
 	if err != nil {
+		hlog.Error("comment:", err)
 		errhandler.RPCCallErrorResponse("comment",
-			err, consts.StatusInternalServerError, c)
+			errno.ServiceErrCode, c)
+		return
 	}
 
 	c.JSON(consts.StatusOK, resp)
@@ -62,31 +55,23 @@ func CommentList(ctx context.Context, c *app.RequestContext) {
 	var req comment.DouyinCommentListRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		errhandler.ErrorResponse(err.Error(), errno.BadRequestCode, c)
 		return
 	}
 
-	userId := int64(-1)
-	// Token字段可以为空，因为任意用户都可以看视频的评论
-	if req.Token != "" {
-		token, err := tools.ParseToken(req.Token)
-		if err != nil {
-			errhandler.ParseTokenErrorResponse(
-				err, consts.StatusBadRequest, c)
-			return
-		}
-		userId = token.Id
-	}
+	userId := ctx.Value("uid").(int64)
 
 	resp, err := config.Clients.Comment.CommentList(
 		ctx,
-		&kcomment.DouyinCommentListRequest {
-			UserId: userId,
+		&kcomment.DouyinCommentListRequest{
+			UserId:  userId,
 			VideoId: req.VideoID,
 		})
 	if err != nil {
+		hlog.Error("comment:", err)
 		errhandler.RPCCallErrorResponse("comment",
-			err, consts.StatusInternalServerError, c)
+			errno.ServiceErrCode, c)
+		return
 	}
 
 	c.JSON(consts.StatusOK, resp)

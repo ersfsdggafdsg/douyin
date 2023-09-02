@@ -3,6 +3,7 @@
 package relation
 
 import (
+	"douyin/cmd/api/pkg/middleware"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -22,8 +23,10 @@ func _relationMw() []app.HandlerFunc {
 }
 
 func _relationactionMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	// 管理关注，必须登录
+	return []app.HandlerFunc{
+		middleware.NoOrWrongTokenAbort,
+	}
 }
 
 func _followMw() []app.HandlerFunc {
@@ -32,8 +35,10 @@ func _followMw() []app.HandlerFunc {
 }
 
 func _followlistMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	// 查看关注列表，必须登录
+	return []app.HandlerFunc{
+		middleware.TokenUserIdSame,
+	}
 }
 
 func _followerMw() []app.HandlerFunc {
@@ -42,8 +47,10 @@ func _followerMw() []app.HandlerFunc {
 }
 
 func _followerlistMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	// 查看粉丝列表，必须登录，并且参数是有token也有userid
+	return []app.HandlerFunc{
+		middleware.TokenUserIdSame,
+	}
 }
 
 func _friendMw() []app.HandlerFunc {
@@ -52,6 +59,28 @@ func _friendMw() []app.HandlerFunc {
 }
 
 func _friendlistMw() []app.HandlerFunc {
+	// 查看好友列表，必须登录，并且参数是有token也有userid
+	return []app.HandlerFunc{
+		middleware.TokenUserIdSame,
+	}
+}
+
+func _actionMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _listMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _list0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _list1Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

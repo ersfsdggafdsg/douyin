@@ -21,6 +21,7 @@ func NewServiceInfo() *kitex.ServiceInfo {
 	methods := map[string]kitex.MethodInfo{
 		"FavoriteAction": kitex.NewMethodInfo(favoriteActionHandler, newFavoriteServiceFavoriteActionArgs, newFavoriteServiceFavoriteActionResult, false),
 		"FavoriteList":   kitex.NewMethodInfo(favoriteListHandler, newFavoriteServiceFavoriteListArgs, newFavoriteServiceFavoriteListResult, false),
+		"IsFavorited":    kitex.NewMethodInfo(isFavoritedHandler, newFavoriteServiceIsFavoritedArgs, newFavoriteServiceIsFavoritedResult, false),
 	}
 	extra := map[string]interface{}{
 		"PackageName": "favorite",
@@ -72,6 +73,24 @@ func newFavoriteServiceFavoriteListResult() interface{} {
 	return favorite.NewFavoriteServiceFavoriteListResult()
 }
 
+func isFavoritedHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*favorite.FavoriteServiceIsFavoritedArgs)
+	realResult := result.(*favorite.FavoriteServiceIsFavoritedResult)
+	success, err := handler.(favorite.FavoriteService).IsFavorited(ctx, realArg.UserId, realArg.VideoId)
+	if err != nil {
+		return err
+	}
+	realResult.Success = &success
+	return nil
+}
+func newFavoriteServiceIsFavoritedArgs() interface{} {
+	return favorite.NewFavoriteServiceIsFavoritedArgs()
+}
+
+func newFavoriteServiceIsFavoritedResult() interface{} {
+	return favorite.NewFavoriteServiceIsFavoritedResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -97,6 +116,17 @@ func (p *kClient) FavoriteList(ctx context.Context, req *favorite.DouyinFavorite
 	_args.Req = req
 	var _result favorite.FavoriteServiceFavoriteListResult
 	if err = p.c.Call(ctx, "FavoriteList", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) IsFavorited(ctx context.Context, userId int64, videoId int64) (r bool, err error) {
+	var _args favorite.FavoriteServiceIsFavoritedArgs
+	_args.UserId = userId
+	_args.VideoId = videoId
+	var _result favorite.FavoriteServiceIsFavoritedResult
+	if err = p.c.Call(ctx, "IsFavorited", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

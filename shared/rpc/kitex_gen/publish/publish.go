@@ -993,9 +993,9 @@ type PublishService interface {
 
 	PublishAction(ctx context.Context, request *DouyinPublishActionRequest) (r *DouyinPublishActionResponse, err error)
 
-	UpdateCommentCount(ctx context.Context, videoId int64, newCommentCount_ int64) (err error)
+	UpdateCommentCount(ctx context.Context, videoId int64, addCount int64) (err error)
 
-	UpdateFavoriteCount(ctx context.Context, videoId int64, newFavoriteCount_ int64) (err error)
+	UpdateFavoriteCount(ctx context.Context, videoId int64, addCount int64) (err error)
 
 	QueryRecentVideoInfos(ctx context.Context, startTime int64, limit int64) (r []*rpc.VideoInfo, err error)
 
@@ -1046,20 +1046,20 @@ func (p *PublishServiceClient) PublishAction(ctx context.Context, request *Douyi
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *PublishServiceClient) UpdateCommentCount(ctx context.Context, videoId int64, newCommentCount_ int64) (err error) {
+func (p *PublishServiceClient) UpdateCommentCount(ctx context.Context, videoId int64, addCount int64) (err error) {
 	var _args PublishServiceUpdateCommentCountArgs
 	_args.VideoId = videoId
-	_args.NewCommentCount_ = newCommentCount_
+	_args.AddCount = addCount
 	var _result PublishServiceUpdateCommentCountResult
 	if err = p.Client_().Call(ctx, "UpdateCommentCount", &_args, &_result); err != nil {
 		return
 	}
 	return nil
 }
-func (p *PublishServiceClient) UpdateFavoriteCount(ctx context.Context, videoId int64, newFavoriteCount_ int64) (err error) {
+func (p *PublishServiceClient) UpdateFavoriteCount(ctx context.Context, videoId int64, addCount int64) (err error) {
 	var _args PublishServiceUpdateFavoriteCountArgs
 	_args.VideoId = videoId
-	_args.NewFavoriteCount_ = newFavoriteCount_
+	_args.AddCount = addCount
 	var _result PublishServiceUpdateFavoriteCountResult
 	if err = p.Client_().Call(ctx, "UpdateFavoriteCount", &_args, &_result); err != nil {
 		return
@@ -1247,7 +1247,7 @@ func (p *publishServiceProcessorUpdateCommentCount) Process(ctx context.Context,
 	iprot.ReadMessageEnd()
 	var err2 error
 	result := PublishServiceUpdateCommentCountResult{}
-	if err2 = p.handler.UpdateCommentCount(ctx, args.VideoId, args.NewCommentCount_); err2 != nil {
+	if err2 = p.handler.UpdateCommentCount(ctx, args.VideoId, args.AddCount); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UpdateCommentCount: "+err2.Error())
 		oprot.WriteMessageBegin("UpdateCommentCount", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
@@ -1292,7 +1292,7 @@ func (p *publishServiceProcessorUpdateFavoriteCount) Process(ctx context.Context
 	iprot.ReadMessageEnd()
 	var err2 error
 	result := PublishServiceUpdateFavoriteCountResult{}
-	if err2 = p.handler.UpdateFavoriteCount(ctx, args.VideoId, args.NewFavoriteCount_); err2 != nil {
+	if err2 = p.handler.UpdateFavoriteCount(ctx, args.VideoId, args.AddCount); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UpdateFavoriteCount: "+err2.Error())
 		oprot.WriteMessageBegin("UpdateFavoriteCount", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
@@ -2107,8 +2107,8 @@ func (p *PublishServicePublishActionResult) Field0DeepEqual(src *DouyinPublishAc
 }
 
 type PublishServiceUpdateCommentCountArgs struct {
-	VideoId          int64 `thrift:"videoId,1" frugal:"1,default,i64" json:"videoId"`
-	NewCommentCount_ int64 `thrift:"newCommentCount,2" frugal:"2,default,i64" json:"newCommentCount"`
+	VideoId  int64 `thrift:"videoId,1" frugal:"1,default,i64" json:"videoId"`
+	AddCount int64 `thrift:"addCount,2" frugal:"2,default,i64" json:"addCount"`
 }
 
 func NewPublishServiceUpdateCommentCountArgs() *PublishServiceUpdateCommentCountArgs {
@@ -2123,19 +2123,19 @@ func (p *PublishServiceUpdateCommentCountArgs) GetVideoId() (v int64) {
 	return p.VideoId
 }
 
-func (p *PublishServiceUpdateCommentCountArgs) GetNewCommentCount_() (v int64) {
-	return p.NewCommentCount_
+func (p *PublishServiceUpdateCommentCountArgs) GetAddCount() (v int64) {
+	return p.AddCount
 }
 func (p *PublishServiceUpdateCommentCountArgs) SetVideoId(val int64) {
 	p.VideoId = val
 }
-func (p *PublishServiceUpdateCommentCountArgs) SetNewCommentCount_(val int64) {
-	p.NewCommentCount_ = val
+func (p *PublishServiceUpdateCommentCountArgs) SetAddCount(val int64) {
+	p.AddCount = val
 }
 
 var fieldIDToName_PublishServiceUpdateCommentCountArgs = map[int16]string{
 	1: "videoId",
-	2: "newCommentCount",
+	2: "addCount",
 }
 
 func (p *PublishServiceUpdateCommentCountArgs) Read(iprot thrift.TProtocol) (err error) {
@@ -2220,7 +2220,7 @@ func (p *PublishServiceUpdateCommentCountArgs) ReadField2(iprot thrift.TProtocol
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		p.NewCommentCount_ = v
+		p.AddCount = v
 	}
 	return nil
 }
@@ -2276,10 +2276,10 @@ WriteFieldEndError:
 }
 
 func (p *PublishServiceUpdateCommentCountArgs) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("newCommentCount", thrift.I64, 2); err != nil {
+	if err = oprot.WriteFieldBegin("addCount", thrift.I64, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.NewCommentCount_); err != nil {
+	if err := oprot.WriteI64(p.AddCount); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -2308,7 +2308,7 @@ func (p *PublishServiceUpdateCommentCountArgs) DeepEqual(ano *PublishServiceUpda
 	if !p.Field1DeepEqual(ano.VideoId) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.NewCommentCount_) {
+	if !p.Field2DeepEqual(ano.AddCount) {
 		return false
 	}
 	return true
@@ -2323,7 +2323,7 @@ func (p *PublishServiceUpdateCommentCountArgs) Field1DeepEqual(src int64) bool {
 }
 func (p *PublishServiceUpdateCommentCountArgs) Field2DeepEqual(src int64) bool {
 
-	if p.NewCommentCount_ != src {
+	if p.AddCount != src {
 		return false
 	}
 	return true
@@ -2424,8 +2424,8 @@ func (p *PublishServiceUpdateCommentCountResult) DeepEqual(ano *PublishServiceUp
 }
 
 type PublishServiceUpdateFavoriteCountArgs struct {
-	VideoId           int64 `thrift:"videoId,1" frugal:"1,default,i64" json:"videoId"`
-	NewFavoriteCount_ int64 `thrift:"newFavoriteCount,2" frugal:"2,default,i64" json:"newFavoriteCount"`
+	VideoId  int64 `thrift:"videoId,1" frugal:"1,default,i64" json:"videoId"`
+	AddCount int64 `thrift:"addCount,2" frugal:"2,default,i64" json:"addCount"`
 }
 
 func NewPublishServiceUpdateFavoriteCountArgs() *PublishServiceUpdateFavoriteCountArgs {
@@ -2440,19 +2440,19 @@ func (p *PublishServiceUpdateFavoriteCountArgs) GetVideoId() (v int64) {
 	return p.VideoId
 }
 
-func (p *PublishServiceUpdateFavoriteCountArgs) GetNewFavoriteCount_() (v int64) {
-	return p.NewFavoriteCount_
+func (p *PublishServiceUpdateFavoriteCountArgs) GetAddCount() (v int64) {
+	return p.AddCount
 }
 func (p *PublishServiceUpdateFavoriteCountArgs) SetVideoId(val int64) {
 	p.VideoId = val
 }
-func (p *PublishServiceUpdateFavoriteCountArgs) SetNewFavoriteCount_(val int64) {
-	p.NewFavoriteCount_ = val
+func (p *PublishServiceUpdateFavoriteCountArgs) SetAddCount(val int64) {
+	p.AddCount = val
 }
 
 var fieldIDToName_PublishServiceUpdateFavoriteCountArgs = map[int16]string{
 	1: "videoId",
-	2: "newFavoriteCount",
+	2: "addCount",
 }
 
 func (p *PublishServiceUpdateFavoriteCountArgs) Read(iprot thrift.TProtocol) (err error) {
@@ -2537,7 +2537,7 @@ func (p *PublishServiceUpdateFavoriteCountArgs) ReadField2(iprot thrift.TProtoco
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		p.NewFavoriteCount_ = v
+		p.AddCount = v
 	}
 	return nil
 }
@@ -2593,10 +2593,10 @@ WriteFieldEndError:
 }
 
 func (p *PublishServiceUpdateFavoriteCountArgs) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("newFavoriteCount", thrift.I64, 2); err != nil {
+	if err = oprot.WriteFieldBegin("addCount", thrift.I64, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.NewFavoriteCount_); err != nil {
+	if err := oprot.WriteI64(p.AddCount); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -2625,7 +2625,7 @@ func (p *PublishServiceUpdateFavoriteCountArgs) DeepEqual(ano *PublishServiceUpd
 	if !p.Field1DeepEqual(ano.VideoId) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.NewFavoriteCount_) {
+	if !p.Field2DeepEqual(ano.AddCount) {
 		return false
 	}
 	return true
@@ -2640,7 +2640,7 @@ func (p *PublishServiceUpdateFavoriteCountArgs) Field1DeepEqual(src int64) bool 
 }
 func (p *PublishServiceUpdateFavoriteCountArgs) Field2DeepEqual(src int64) bool {
 
-	if p.NewFavoriteCount_ != src {
+	if p.AddCount != src {
 		return false
 	}
 	return true

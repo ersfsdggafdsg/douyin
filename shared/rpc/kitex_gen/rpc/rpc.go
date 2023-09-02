@@ -16,6 +16,7 @@ type VideoInfo struct {
 	FavoriteCount int64  `thrift:"favorite_count,5" frugal:"5,default,i64" json:"favorite_count"`
 	CommentCount  int64  `thrift:"comment_count,6" frugal:"6,default,i64" json:"comment_count"`
 	Title         string `thrift:"title,7" frugal:"7,default,string" json:"title"`
+	CreateTime    int64  `thrift:"create_time,8" frugal:"8,default,i64" json:"create_time"`
 }
 
 func NewVideoInfo() *VideoInfo {
@@ -53,6 +54,10 @@ func (p *VideoInfo) GetCommentCount() (v int64) {
 func (p *VideoInfo) GetTitle() (v string) {
 	return p.Title
 }
+
+func (p *VideoInfo) GetCreateTime() (v int64) {
+	return p.CreateTime
+}
 func (p *VideoInfo) SetId(val int64) {
 	p.Id = val
 }
@@ -74,6 +79,9 @@ func (p *VideoInfo) SetCommentCount(val int64) {
 func (p *VideoInfo) SetTitle(val string) {
 	p.Title = val
 }
+func (p *VideoInfo) SetCreateTime(val int64) {
+	p.CreateTime = val
+}
 
 var fieldIDToName_VideoInfo = map[int16]string{
 	1: "id",
@@ -83,6 +91,7 @@ var fieldIDToName_VideoInfo = map[int16]string{
 	5: "favorite_count",
 	6: "comment_count",
 	7: "title",
+	8: "create_time",
 }
 
 func (p *VideoInfo) Read(iprot thrift.TProtocol) (err error) {
@@ -167,6 +176,16 @@ func (p *VideoInfo) Read(iprot thrift.TProtocol) (err error) {
 		case 7:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField7(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 8:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField8(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -267,6 +286,15 @@ func (p *VideoInfo) ReadField7(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *VideoInfo) ReadField8(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.CreateTime = v
+	}
+	return nil
+}
+
 func (p *VideoInfo) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	if err = oprot.WriteStructBegin("VideoInfo"); err != nil {
@@ -299,6 +327,10 @@ func (p *VideoInfo) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField7(oprot); err != nil {
 			fieldId = 7
+			goto WriteFieldError
+		}
+		if err = p.writeField8(oprot); err != nil {
+			fieldId = 8
 			goto WriteFieldError
 		}
 
@@ -439,6 +471,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
 }
 
+func (p *VideoInfo) writeField8(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("create_time", thrift.I64, 8); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.CreateTime); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 8 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
+}
+
 func (p *VideoInfo) String() string {
 	if p == nil {
 		return "<nil>"
@@ -471,6 +520,9 @@ func (p *VideoInfo) DeepEqual(ano *VideoInfo) bool {
 		return false
 	}
 	if !p.Field7DeepEqual(ano.Title) {
+		return false
+	}
+	if !p.Field8DeepEqual(ano.CreateTime) {
 		return false
 	}
 	return true
@@ -521,6 +573,13 @@ func (p *VideoInfo) Field6DeepEqual(src int64) bool {
 func (p *VideoInfo) Field7DeepEqual(src string) bool {
 
 	if strings.Compare(p.Title, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *VideoInfo) Field8DeepEqual(src int64) bool {
+
+	if p.CreateTime != src {
 		return false
 	}
 	return true

@@ -3,6 +3,7 @@
 package favorite
 
 import (
+	"douyin/cmd/api/pkg/middleware"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -22,11 +23,25 @@ func _favoriteMw() []app.HandlerFunc {
 }
 
 func _favoriteactionMw() []app.HandlerFunc {
+	// 操作点赞，必须登录
+	return []app.HandlerFunc{
+		middleware.NoOrWrongTokenAbort,
+	}
+}
+
+func _favoritelistMw() []app.HandlerFunc {
+	// 用户自己的点赞列表，必须登录，请求是Token+UserId
+	return []app.HandlerFunc{
+		middleware.TokenUserIdSame,
+	}
+}
+
+func _actionMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
-func _favoritelistMw() []app.HandlerFunc {
+func _listMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

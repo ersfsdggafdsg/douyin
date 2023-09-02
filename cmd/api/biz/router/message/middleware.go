@@ -3,6 +3,7 @@
 package message
 
 import (
+	"douyin/cmd/api/pkg/middleware"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -22,11 +23,25 @@ func _messageMw() []app.HandlerFunc {
 }
 
 func _messageactionMw() []app.HandlerFunc {
+	// 操作消息，必须登录
+	return []app.HandlerFunc{
+		middleware.NoOrWrongTokenAbort,
+	}
+}
+
+func _messagelistMw() []app.HandlerFunc {
+	// 查看聊天消息，必须登录
+	return []app.HandlerFunc{
+		middleware.NoOrWrongTokenAbort,
+	}
+}
+
+func _actionMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
-func _messagelistMw() []app.HandlerFunc {
+func _chatMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

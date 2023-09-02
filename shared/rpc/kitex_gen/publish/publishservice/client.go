@@ -14,8 +14,8 @@ import (
 type Client interface {
 	PublishList(ctx context.Context, request *publish.DouyinPublishListRequest, callOptions ...callopt.Option) (r *publish.DouyinPublishListResponse, err error)
 	PublishAction(ctx context.Context, request *publish.DouyinPublishActionRequest, callOptions ...callopt.Option) (r *publish.DouyinPublishActionResponse, err error)
-	UpdateCommentCount(ctx context.Context, videoId int64, newCommentCount_ int64, callOptions ...callopt.Option) (err error)
-	UpdateFavoriteCount(ctx context.Context, videoId int64, newFavoriteCount_ int64, callOptions ...callopt.Option) (err error)
+	UpdateCommentCount(ctx context.Context, videoId int64, addCount int64, callOptions ...callopt.Option) (err error)
+	UpdateFavoriteCount(ctx context.Context, videoId int64, addCount int64, callOptions ...callopt.Option) (err error)
 	QueryRecentVideoInfos(ctx context.Context, startTime int64, limit int64, callOptions ...callopt.Option) (r []*rpc.VideoInfo, err error)
 	VideoInfo(ctx context.Context, videoId int64, callOptions ...callopt.Option) (r *rpc.VideoInfo, err error)
 }
@@ -59,14 +59,14 @@ func (p *kPublishServiceClient) PublishAction(ctx context.Context, request *publ
 	return p.kClient.PublishAction(ctx, request)
 }
 
-func (p *kPublishServiceClient) UpdateCommentCount(ctx context.Context, videoId int64, newCommentCount_ int64, callOptions ...callopt.Option) (err error) {
+func (p *kPublishServiceClient) UpdateCommentCount(ctx context.Context, videoId int64, addCount int64, callOptions ...callopt.Option) (err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.UpdateCommentCount(ctx, videoId, newCommentCount_)
+	return p.kClient.UpdateCommentCount(ctx, videoId, addCount)
 }
 
-func (p *kPublishServiceClient) UpdateFavoriteCount(ctx context.Context, videoId int64, newFavoriteCount_ int64, callOptions ...callopt.Option) (err error) {
+func (p *kPublishServiceClient) UpdateFavoriteCount(ctx context.Context, videoId int64, addCount int64, callOptions ...callopt.Option) (err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.UpdateFavoriteCount(ctx, videoId, newFavoriteCount_)
+	return p.kClient.UpdateFavoriteCount(ctx, videoId, addCount)
 }
 
 func (p *kPublishServiceClient) QueryRecentVideoInfos(ctx context.Context, startTime int64, limit int64, callOptions ...callopt.Option) (r []*rpc.VideoInfo, err error) {

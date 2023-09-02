@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-RUN_NAME="user.srv"
+RUN_NAME=".srv"
 
 mkdir -p output/bin
 cp script/* output/

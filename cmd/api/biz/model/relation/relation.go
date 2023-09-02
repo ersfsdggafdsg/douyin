@@ -1724,12 +1724,13 @@ func (p *DouyinRelationFriendListResponse) String() string {
 }
 
 type RelationService interface {
+	// 关注或取关
 	RelationAction(ctx context.Context, req *DouyinRelationActionRequest) (r *DouyinRelationActionResponse, err error)
-
+	// 关注列表
 	FollowList(ctx context.Context, req *DouyinRelationFollowListRequest) (r *DouyinRelationFollowListResponse, err error)
-
+	// 粉丝列表
 	FollowerList(ctx context.Context, req *DouyinRelationFollowerListRequest) (r *DouyinRelationFollowerListResponse, err error)
-
+	// 好友（粉丝）列表
 	FriendList(ctx context.Context, req *DouyinRelationFriendListRequest) (r *DouyinRelationFriendListResponse, err error)
 }
 

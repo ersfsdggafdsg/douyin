@@ -3,6 +3,7 @@
 package user
 
 import (
+	"douyin/cmd/api/pkg/middleware"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -17,8 +18,10 @@ func _douyinMw() []app.HandlerFunc {
 }
 
 func _userinfoMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	// 查看用户自己的信息，必须登录，并且也是Token+UserId
+	return []app.HandlerFunc{
+		middleware.TokenUserIdSame,
+	}
 }
 
 func _userMw() []app.HandlerFunc {
@@ -27,11 +30,21 @@ func _userMw() []app.HandlerFunc {
 }
 
 func _loginMw() []app.HandlerFunc {
-	// your code...
+	// 登录不需要token
 	return nil
 }
 
 func _registerMw() []app.HandlerFunc {
+	// 注册不需要token
+	return nil
+}
+
+func _login0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _register0Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

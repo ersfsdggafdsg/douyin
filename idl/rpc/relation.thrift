@@ -61,6 +61,6 @@ service RelationService {
   douyin_relation_friend_list_response FriendList(1: douyin_relation_friend_list_request req)
 
   // 查询是否关注
-  bool IsFollowing(1: i64 userId, 2: i64 followerId)
+  bool IsFollowing(1: i64 userId, 2: i64 toUserId)
 
 }

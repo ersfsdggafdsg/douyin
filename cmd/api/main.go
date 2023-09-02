@@ -4,13 +4,19 @@ package main
 
 import (
 	"douyin/cmd/api/initialize"
+	"douyin/cmd/api/pkg/middleware"
+
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
 func main() {
 	registry, info := initialize.InitRegistry();
 	h := server.Default(
-		server.WithRegistry(registry, info))
+		server.WithRegistry(registry, info),
+		server.WithRemoveExtraSlash(true),
+		server.WithMaxRequestBodySize(10 * 1024 * 1024),
+	)
+	h.Use(middleware.Log)
 	register(h)
 	h.Spin()
 }

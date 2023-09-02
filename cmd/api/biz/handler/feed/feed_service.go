@@ -6,47 +6,42 @@ import (
 	"context"
 	"douyin/shared/config"
 	kfeed "douyin/shared/rpc/kitex_gen/feed"
-	"douyin/shared/tools"
+	"douyin/shared/utils/errno"
+	"strconv"
 
-	feed "douyin/cmd/api/biz/model/feed"
 	"douyin/cmd/api/pkg/errhandler"
-
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
 
 // Feed .
 // @router /douyin/feed [GET]
 func Feed(ctx context.Context, c *app.RequestContext) {
+	// WARN: 根据给定的IDL，参数中可能没有latest_time，所以使用下面的提取方法。
 	var err error
-	var req feed.DouyinFeedRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
-		return
-	}
-
-	userId := int64(-1)
-	// 由于token可以为空，所以需要单独判断
-	if req.Token != "" {
-		token, err := tools.ParseToken(req.Token)
+	latestTime := int64(0)
+	str := c.Query("latest_time")
+	if str != "" {
+		latestTime, err = strconv.ParseInt(str, 10, 64)
 		if err != nil {
-			errhandler.ParseTokenErrorResponse(err,
-				consts.StatusBadRequest, c)
+			errhandler.ErrorResponse(err.Error(), errno.BadRequestCode, c)
 			return
 		}
-		userId = token.Id
 	}
+
+	userId := ctx.Value("uid").(int64)
 
 	resp, err := config.Clients.Feed.Feed(
 		ctx,
-		&kfeed.DouyinFeedRequest {
-			UserId: userId,
-			LatestTime: req.LatestTime,
+		&kfeed.DouyinFeedRequest{
+			UserId:     userId,
+			LatestTime: latestTime,
 		})
 	if err != nil {
+		hlog.Error("feed", err)
 		errhandler.RPCCallErrorResponse("feed",
-			err, consts.StatusInternalServerError, c)
+			errno.ServiceErrCode, c)
 		return
 	}
 
