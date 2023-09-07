@@ -24,7 +24,7 @@ func IsExists(path string) bool {
 
 
 func FileUrl(path string) string {
-	return "http://192.168.1.110:8080/" + filepath.Join("static/", path)
+	return "http://192.168.43.210:8080/" + filepath.Join("static/", path)
 }
 
 func localUploadImpl(bin []byte, path string) (url string, err error) {
