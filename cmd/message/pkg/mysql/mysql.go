@@ -21,7 +21,7 @@ func (m *MessageManager) LatestMessage(senderId, receiverId int64) (resp *model.
 	resp = new(model.Message)
 	// 这样避免查询两次
 	err = m.Order("create_time desc").First(&resp,
-		"(user_id = ? AND to_user_id = ?) OR (user_id = ? AND to_user_id = ?)",
+		"(from_user_id = ? AND to_user_id = ?) OR (from_user_id = ? AND to_user_id = ?)",
 		senderId, receiverId, receiverId, senderId).Error
 	return resp, err
 }
@@ -32,16 +32,16 @@ func (m *MessageManager) recent(preMsgTime int64) func(*gorm.DB) *gorm.DB {
 		return db.Where("create_time > ?", utils.Time2Str(time.Unix(preMsgTime / 1000, preMsgTime % 1000 * 1000 * 1000)))
 	}
 }
-func (m *MessageManager) MessageList(userId, toUserId, preMsgTime int64) ([]*model.Message, error) {
+func (m *MessageManager) MessageList(fromUserId, toUserId, preMsgTime int64) ([]*model.Message, error) {
 	infos := make([]*model.Message, 0)
-	err := m.Scopes(m.recent(preMsgTime)).Where("user_id = ? AND to_user_id = ?", userId, toUserId).Find(&infos).Error
+	err := m.Scopes(m.recent(preMsgTime)).Where("from_user_id = ? AND to_user_id = ?", fromUserId, toUserId).Find(&infos).Error
 	return infos, err
 }
 
-func (m *MessageManager) MessageAdd(userId , toUserId int64, content string) (*model.Message, error) {
+func (m *MessageManager) MessageAdd(fromUserId , toUserId int64, content string) (*model.Message, error) {
 	info := &model.Message {
 			Message: common.Message {
-				UserId    : userId,
+				FromUserId: fromUserId,
 				ToUserId  : toUserId,
 				Content   : content,
 				CreateTime: utils.Now2Str(),

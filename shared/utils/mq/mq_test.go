@@ -1,6 +1,7 @@
-package initialize
+package mq
 
 import (
+	"douyin/shared/initialize"
 	"os"
 	"sync"
 	"testing"
@@ -19,24 +20,26 @@ type message struct {
 
 
 func TestMessageQueue(t *testing.T) {
-	mq := InitMq("update")
-	queue := mq.NewQueue("test")
+	conn := initialize.InitMq()
+	queue := NewQueue(conn, "test", "test")
 	idx := 0
 	n := 100000
 	published := make([]int8, n)
 	for idx < n {
-		json, err := sonic.Marshal(&message{idx})
-		if err != nil {
-			t.Log(err)
-		}
-		published[idx] = 1
-		queue.Publish([]byte(json))
+		go func(i int) {
+			json, err := sonic.Marshal(&message{idx})
+			if err != nil {
+				t.Log(err)
+			}
+			published[i] = 1
+			queue.Publish([]byte(json))
+		}(idx)
 		idx++
 	}
 	wg := sync.WaitGroup{}
 	wg.Add(n)
 	go queue.Consume(
-		func (data []byte) {
+		func (data []byte) error {
 			defer wg.Done()
 			msg := message{}
 			sonic.Unmarshal(data, &msg)
@@ -45,6 +48,7 @@ func TestMessageQueue(t *testing.T) {
 			} else {
 				published[msg.idx] = 2
 			}
+			return nil
 		})
 	wg.Wait()
 	for i, v := range published {

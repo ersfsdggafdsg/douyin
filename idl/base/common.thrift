@@ -10,7 +10,7 @@ struct BaseResponse {
 struct Message {
   1: i64 id // 消息id
   2: i64 to_user_id // 消息接收用户id 
-  3: i64 user_id // 消息发送用户id
+  3: i64 from_user_id // 消息发送用户id
   4: string content // 消息内容
   5: string create_time // 消息创建时间
 }

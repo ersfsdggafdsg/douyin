@@ -52,14 +52,14 @@ service UserService {
 	// 获取用户信息
 	rpc.UserInfo GetUserInfo(1: i64 userId)
 
-	// 更新获赞数量，addCount可以为负数
-	void UpdateFavoritedCount(1: i64 userId, 2: i64 addCount)
+	// 更新作者的获赞数量与用户的点赞数量。
+	// 因为作者得到一赞后，用户点赞数加一，
+	// 反之同理，就只需要一个addCount即可。
+	// addCount可以为负数。
+	void UpdateFavoriteCount(1: i64 authorId, 2: i64 userId, 3: i64 addCount)
 
 	// 更新关注数
-	void UpdateFollowingCount(1: i64 userId, 2: i64 addCount)
-
-	// 更新粉丝数
-	void UpdateFollowerCount(1: i64 userId, 2: i64 addCount)
+	void UpdateFollowCount(1: i64 userId, 2: i64 fanId, 3: i64 addCount)
 
 	// 更新作品数
 	void UpdateWorkCount(1: i64 userId, 2: i64 addCount)

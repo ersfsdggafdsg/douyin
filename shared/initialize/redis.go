@@ -6,7 +6,7 @@ import (
 )
 
 
-func InitRedisClient() (client *redis.Client) {
+func InitRedis() (client *redis.Client) {
 	rdb := redis.NewClient(&redis.Options {
 		Addr: "localhost:6379",
 		Password: "",

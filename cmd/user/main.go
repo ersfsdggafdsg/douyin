@@ -1,13 +1,13 @@
 package main
 
 import (
-	"douyin/shared/middleware"
 	"douyin/shared/initialize"
+	"douyin/shared/middleware"
 	user "douyin/shared/rpc/kitex_gen/user/userservice"
 	"log"
 
-	"douyin/cmd/user/pkg/model"
-	"douyin/cmd/user/pkg/mysql"
+	"douyin/cmd/user/pkg/dal/mysql"
+	"douyin/cmd/user/pkg/manager"
 	"net"
 	"os"
 
@@ -18,8 +18,8 @@ import (
 func main() {
 	r, info := initialize.InitRegistry("user.srv")
 	svr := user.NewServer(&UserServiceImpl {
-			Db: mysql.NewManager(initialize.InitMysql(
-				"douyin", "zhihao", "douyin", &model.UserInfo{})),
+			Manager: manager.Manager{
+				Db: mysql.NewManager()},
 		},
 		server.WithServiceAddr(utils.NewNetAddr("tcp",
 			net.JoinHostPort("127.0.0.1", os.Args[1]))),

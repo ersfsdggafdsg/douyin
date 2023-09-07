@@ -1,7 +1,9 @@
 package middleware
+
 import (
 	"context"
 
+	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/endpoint"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -23,7 +25,8 @@ func ShowCallingMiddleware(next endpoint.Endpoint) endpoint.Endpoint {
 		// get real request
 		if ri.To().Method() != "PublishAction" {
 			// 避免输出的内容过多。一个视频文件会很大
-			klog.Infof("real request: %+v\n", req.(args).GetFirstArgument())
+			str, err := sonic.MarshalString(req)
+			klog.Info("real request:", str, err)//.(args).GetFirstArgument())
 		}
 		// get local service information
 		klog.Infof("local service name: %v\n", ri.From().ServiceName())

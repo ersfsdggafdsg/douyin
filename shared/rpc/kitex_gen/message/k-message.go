@@ -8,10 +8,7 @@ import (
 	"reflect"
 	"strings"
 	"douyin/shared/rpc/kitex_gen/common"
-
-
 	"github.com/apache/thrift/lib/go/thrift"
-
 	"github.com/cloudwego/kitex/pkg/protocol/bthrift"
 )
 

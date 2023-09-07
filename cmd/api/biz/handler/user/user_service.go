@@ -82,7 +82,6 @@ func UserInfo(ctx context.Context, c *app.RequestContext) {
 		errhandler.ErrorResponse(err.Error(), errno.BadRequestCode, c)
 		return
 	}
-	hlog.Info("获取用户信息：", req.UserID)
 
 	userId := ctx.Value("uid").(int64)
 

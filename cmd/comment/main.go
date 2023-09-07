@@ -1,10 +1,11 @@
 package main
 
 import (
-	"douyin/shared/middleware"
-	"douyin/cmd/comment/pkg/model"
-	"douyin/cmd/comment/pkg/mysql"
+	"douyin/cmd/comment/pkg/dal/mysql"
+	"douyin/cmd/comment/pkg/manager"
+	"douyin/cmd/comment/pkg/mq"
 	"douyin/shared/initialize"
+	"douyin/shared/middleware"
 	comment "douyin/shared/rpc/kitex_gen/comment/commentservice"
 	"log"
 	"net"
@@ -16,16 +17,20 @@ import (
 
 func main() {
 	r, info := initialize.InitRegistry("comment.srv")
-	svr := comment.NewServer(&CommentServiceImpl {
-			Db: mysql.NewManager(initialize.InitMysql(
-				"douyin", "zhihao", "douyin", &model.Comment{},
-			)),
+	impl := CommentServiceImpl {
+		manager.Manager{
+			Db: mysql.NewManager(),
+			Mq: mq.NewManager(),
 		},
+	}
+	svr := comment.NewServer(&impl,
 		server.WithRegistry(r),
 		server.WithMiddleware(middleware.ShowCallingMiddleware),
 		server.WithServiceAddr(utils.NewNetAddr("tcp",
 			net.JoinHostPort("127.0.0.1", os.Args[1]))),
 		server.WithRegistryInfo(info))
+
+	impl.Mq.RunConsumers()
 
 	err := svr.Run()
 

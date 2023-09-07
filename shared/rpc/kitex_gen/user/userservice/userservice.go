@@ -20,14 +20,13 @@ func NewServiceInfo() *kitex.ServiceInfo {
 	serviceName := "UserService"
 	handlerType := (*user.UserService)(nil)
 	methods := map[string]kitex.MethodInfo{
-		"Login":                kitex.NewMethodInfo(loginHandler, newUserServiceLoginArgs, newUserServiceLoginResult, false),
-		"Register":             kitex.NewMethodInfo(registerHandler, newUserServiceRegisterArgs, newUserServiceRegisterResult, false),
-		"UserInfo":             kitex.NewMethodInfo(userInfoHandler, newUserServiceUserInfoArgs, newUserServiceUserInfoResult, false),
-		"GetUserInfo":          kitex.NewMethodInfo(getUserInfoHandler, newUserServiceGetUserInfoArgs, newUserServiceGetUserInfoResult, false),
-		"UpdateFavoritedCount": kitex.NewMethodInfo(updateFavoritedCountHandler, newUserServiceUpdateFavoritedCountArgs, newUserServiceUpdateFavoritedCountResult, false),
-		"UpdateFollowingCount": kitex.NewMethodInfo(updateFollowingCountHandler, newUserServiceUpdateFollowingCountArgs, newUserServiceUpdateFollowingCountResult, false),
-		"UpdateFollowerCount":  kitex.NewMethodInfo(updateFollowerCountHandler, newUserServiceUpdateFollowerCountArgs, newUserServiceUpdateFollowerCountResult, false),
-		"UpdateWorkCount":      kitex.NewMethodInfo(updateWorkCountHandler, newUserServiceUpdateWorkCountArgs, newUserServiceUpdateWorkCountResult, false),
+		"Login":               kitex.NewMethodInfo(loginHandler, newUserServiceLoginArgs, newUserServiceLoginResult, false),
+		"Register":            kitex.NewMethodInfo(registerHandler, newUserServiceRegisterArgs, newUserServiceRegisterResult, false),
+		"UserInfo":            kitex.NewMethodInfo(userInfoHandler, newUserServiceUserInfoArgs, newUserServiceUserInfoResult, false),
+		"GetUserInfo":         kitex.NewMethodInfo(getUserInfoHandler, newUserServiceGetUserInfoArgs, newUserServiceGetUserInfoResult, false),
+		"UpdateFavoriteCount": kitex.NewMethodInfo(updateFavoriteCountHandler, newUserServiceUpdateFavoriteCountArgs, newUserServiceUpdateFavoriteCountResult, false),
+		"UpdateFollowCount":   kitex.NewMethodInfo(updateFollowCountHandler, newUserServiceUpdateFollowCountArgs, newUserServiceUpdateFollowCountResult, false),
+		"UpdateWorkCount":     kitex.NewMethodInfo(updateWorkCountHandler, newUserServiceUpdateWorkCountArgs, newUserServiceUpdateWorkCountResult, false),
 	}
 	extra := map[string]interface{}{
 		"PackageName": "user",
@@ -115,58 +114,40 @@ func newUserServiceGetUserInfoResult() interface{} {
 	return user.NewUserServiceGetUserInfoResult()
 }
 
-func updateFavoritedCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*user.UserServiceUpdateFavoritedCountArgs)
+func updateFavoriteCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceUpdateFavoriteCountArgs)
 
-	err := handler.(user.UserService).UpdateFavoritedCount(ctx, realArg.UserId, realArg.AddCount)
+	err := handler.(user.UserService).UpdateFavoriteCount(ctx, realArg.AuthorId, realArg.UserId, realArg.AddCount)
 	if err != nil {
 		return err
 	}
 
 	return nil
 }
-func newUserServiceUpdateFavoritedCountArgs() interface{} {
-	return user.NewUserServiceUpdateFavoritedCountArgs()
+func newUserServiceUpdateFavoriteCountArgs() interface{} {
+	return user.NewUserServiceUpdateFavoriteCountArgs()
 }
 
-func newUserServiceUpdateFavoritedCountResult() interface{} {
-	return user.NewUserServiceUpdateFavoritedCountResult()
+func newUserServiceUpdateFavoriteCountResult() interface{} {
+	return user.NewUserServiceUpdateFavoriteCountResult()
 }
 
-func updateFollowingCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*user.UserServiceUpdateFollowingCountArgs)
+func updateFollowCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceUpdateFollowCountArgs)
 
-	err := handler.(user.UserService).UpdateFollowingCount(ctx, realArg.UserId, realArg.AddCount)
+	err := handler.(user.UserService).UpdateFollowCount(ctx, realArg.UserId, realArg.FanId, realArg.AddCount)
 	if err != nil {
 		return err
 	}
 
 	return nil
 }
-func newUserServiceUpdateFollowingCountArgs() interface{} {
-	return user.NewUserServiceUpdateFollowingCountArgs()
+func newUserServiceUpdateFollowCountArgs() interface{} {
+	return user.NewUserServiceUpdateFollowCountArgs()
 }
 
-func newUserServiceUpdateFollowingCountResult() interface{} {
-	return user.NewUserServiceUpdateFollowingCountResult()
-}
-
-func updateFollowerCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*user.UserServiceUpdateFollowerCountArgs)
-
-	err := handler.(user.UserService).UpdateFollowerCount(ctx, realArg.UserId, realArg.AddCount)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-func newUserServiceUpdateFollowerCountArgs() interface{} {
-	return user.NewUserServiceUpdateFollowerCountArgs()
-}
-
-func newUserServiceUpdateFollowerCountResult() interface{} {
-	return user.NewUserServiceUpdateFollowerCountResult()
+func newUserServiceUpdateFollowCountResult() interface{} {
+	return user.NewUserServiceUpdateFollowCountResult()
 }
 
 func updateWorkCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -237,34 +218,25 @@ func (p *kClient) GetUserInfo(ctx context.Context, userId int64) (r *rpc.UserInf
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) UpdateFavoritedCount(ctx context.Context, userId int64, addCount int64) (err error) {
-	var _args user.UserServiceUpdateFavoritedCountArgs
+func (p *kClient) UpdateFavoriteCount(ctx context.Context, authorId int64, userId int64, addCount int64) (err error) {
+	var _args user.UserServiceUpdateFavoriteCountArgs
+	_args.AuthorId = authorId
 	_args.UserId = userId
 	_args.AddCount = addCount
-	var _result user.UserServiceUpdateFavoritedCountResult
-	if err = p.c.Call(ctx, "UpdateFavoritedCount", &_args, &_result); err != nil {
+	var _result user.UserServiceUpdateFavoriteCountResult
+	if err = p.c.Call(ctx, "UpdateFavoriteCount", &_args, &_result); err != nil {
 		return
 	}
 	return nil
 }
 
-func (p *kClient) UpdateFollowingCount(ctx context.Context, userId int64, addCount int64) (err error) {
-	var _args user.UserServiceUpdateFollowingCountArgs
+func (p *kClient) UpdateFollowCount(ctx context.Context, userId int64, fanId int64, addCount int64) (err error) {
+	var _args user.UserServiceUpdateFollowCountArgs
 	_args.UserId = userId
+	_args.FanId = fanId
 	_args.AddCount = addCount
-	var _result user.UserServiceUpdateFollowingCountResult
-	if err = p.c.Call(ctx, "UpdateFollowingCount", &_args, &_result); err != nil {
-		return
-	}
-	return nil
-}
-
-func (p *kClient) UpdateFollowerCount(ctx context.Context, userId int64, addCount int64) (err error) {
-	var _args user.UserServiceUpdateFollowerCountArgs
-	_args.UserId = userId
-	_args.AddCount = addCount
-	var _result user.UserServiceUpdateFollowerCountResult
-	if err = p.c.Call(ctx, "UpdateFollowerCount", &_args, &_result); err != nil {
+	var _result user.UserServiceUpdateFollowCountResult
+	if err = p.c.Call(ctx, "UpdateFollowCount", &_args, &_result); err != nil {
 		return
 	}
 	return nil

@@ -2,24 +2,24 @@ namespace go favorite
 include "../base/http.thrift"
 
 struct douyin_favorite_action_request {
-1: i64 user_id // 用户id
-2: i64 video_id; // 视频id
-3: i32 action_type; // 1-点赞，2-取消点赞
+	1: i64 user_id // 用户id
+	2: i64 video_id; // 视频id
+	3: i32 action_type; // 1-点赞，2-取消点赞
 }
 
 struct douyin_favorite_action_response {
-1: i32 status_code; // 状态码，0-成功，其他值-失败
-2: string status_msg; // 返回状态描述
+	1: i32 status_code; // 状态码，0-成功，其他值-失败
+	2: string status_msg; // 返回状态描述
 }
 
 struct douyin_favorite_list_request {
-1: i64 user_id; // 用户id
+	1: i64 user_id; // 用户id
 }
 
 struct douyin_favorite_list_response {
-1: i32 status_code; // 状态码，0-成功，其他值-失败
-2: string status_msg; // 返回状态描述
-3: list<http.Video> video_list; // 用户点赞视频列表
+	1: i32 status_code; // 状态码，0-成功，其他值-失败
+	2: string status_msg; // 返回状态描述
+	3: list<http.Video> video_list; // 用户点赞视频列表
 }
 
 service FavoriteService {

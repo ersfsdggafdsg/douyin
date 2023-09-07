@@ -46,3 +46,7 @@ TODO:
  vid: /favorite/action, /comment/action, /comment/list
  uid, touid: /message/chat, /message/action, /relation/action
  uid(可以不存在): /feed
+
+2. 提升
+  - 更改jwt的模式，因为需要检查用户、视频、评论是否存在，使用jwt还不如直接服务端存一个验证用的
+  - 更改idl文件，参数统一为一个结构体，这么做的好处是，可以直接通过统一的key生成函数，去查验数据是否存在
