@@ -18,9 +18,7 @@ import (
 func main() {
 	r, info := initialize.InitRegistry("publish.srv")
 	svr := publish.NewServer(&PublishServiceImpl {
-			Db: mysql.NewManger(initialize.InitMysql(
-				"douyin", "zhihao", "douyin", &model.VideoInfo{},
-			)),
+			Db: mysql.NewManger(initialize.InitMysql(&model.VideoInfo{})),
 		},
 		server.WithRegistry(r),
 		server.WithMiddleware(middleware.ShowCallingMiddleware),

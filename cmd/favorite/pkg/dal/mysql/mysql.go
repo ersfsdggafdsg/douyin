@@ -12,9 +12,7 @@ type FavoriteManager struct {
 }
 
 func NewManager() (FavoriteManager) {
-	return FavoriteManager{initialize.InitMysql(
-			"douyin", "zhihao", "douyin", &model.Favorite{},
-		)}
+	return FavoriteManager{initialize.InitMysql(&model.Favorite{})}
 }
 
 type DbTransaction struct {

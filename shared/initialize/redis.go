@@ -8,9 +8,9 @@ import (
 
 func InitRedis() (client *redis.Client) {
 	rdb := redis.NewClient(&redis.Options {
-		Addr: "localhost:6379",
-		Password: "",
-		DB: 0,
+		Addr: Config.GetString("redis_addr"),
+		Password: Config.GetString("redis_password"),
+		DB: Config.GetInt("redis_db_no"),
 	})
 
 	if rdb == nil {

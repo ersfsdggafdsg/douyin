@@ -12,8 +12,7 @@ type CommentManager struct {
 }
 
 func NewManager() (CommentManager) {
-	return CommentManager{initialize.InitMysql(
-		"douyin", "zhihao", "douyin", &model.Comment{})}
+	return CommentManager{initialize.InitMysql(&model.Comment{})}
 }
 
 type DbTransaction struct {

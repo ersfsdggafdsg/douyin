@@ -11,8 +11,7 @@ type RelationManager struct {
 }
 
 func NewManager() (RelationManager) {
-	return RelationManager{initialize.InitMysql(
-		"douyin", "zhihao", "douyin", &model.Relation{})}
+	return RelationManager{initialize.InitMysql(&model.Relation{})}
 }
 
 type DbTransaction struct {

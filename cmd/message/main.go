@@ -17,9 +17,7 @@ import (
 func main() {
 	r, info := initialize.InitRegistry("message.srv")
 	svr := message.NewServer(&MessageServiceImpl{
-		Db: mysql.NewManager(initialize.InitMysql(
-			"douyin", "zhihao", "douyin", &model.Message{})),
-		},
+		Db: mysql.NewManager(initialize.InitMysql(&model.Message{}))},
 		server.WithServiceAddr(utils.NewNetAddr("tcp",
 			net.JoinHostPort("127.0.0.1", os.Args[1]))),
 		server.WithRegistry(r),

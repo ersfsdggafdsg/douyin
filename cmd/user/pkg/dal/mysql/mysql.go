@@ -13,8 +13,7 @@ type UserManager struct {
 }
 
 func NewManager() (UserManager) {
-	return UserManager{initialize.InitMysql(
-		"douyin", "zhihao", "douyin", &model.UserInfo{})}
+	return UserManager{initialize.InitMysql(&model.UserInfo{})}
 }
 
 type DbTransaction struct {

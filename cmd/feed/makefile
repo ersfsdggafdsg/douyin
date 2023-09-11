@@ -1,4 +1,4 @@
-.PHONY: TODO
+.PHONY: TODO clean
 CURRENT=$(wildcard *.go) $(wildcard */*.go) $(wildcard */*/*.go) $(wildcard */*/*/*.go)
 CONFIG=$(wildcard ../../shared/config/*.go)
 INIT=$(wildcard ../../shared/initialize/*.go)
@@ -9,8 +9,10 @@ run: TODO $(TAR)
 
 TODO:
 	grep -n -R TODO
-	tmux rename-window $(TAR)
+	-tmux rename-window $(TAR)
 
 $(TAR): $(CURRENT) $(CONFIG) $(INIT) $(UTILS)
-	echo $(CURRENT)
 	go build
+
+clean:
+	rm $(TAR)
