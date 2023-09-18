@@ -50,7 +50,7 @@ func (m *MessageQueueManager) updatePublishCommentCountConsume() {
 			return err
 		}
 
-		return config.Clients.Publish.UpdateFavoriteCount(
+		return config.Clients.Publish.UpdateCommentCount(
 			context.Background(), req.VideoId, req.AddCount)
 	})
 }

@@ -5,6 +5,7 @@ package main
 import (
 	"douyin/cmd/api/initialize"
 	"douyin/cmd/api/pkg/middleware"
+	"net"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
@@ -15,6 +16,8 @@ func main() {
 		server.WithRegistry(registry, info),
 		server.WithRemoveExtraSlash(true),
 		server.WithMaxRequestBodySize(10 * 1024 * 1024),
+		server.WithHostPorts(
+			net.JoinHostPort("0.0.0.0", "8080")),
 	)
 	h.Use(middleware.Log)
 	register(h)

@@ -5,11 +5,30 @@ package main
 import (
 	handler "douyin/cmd/api/biz/handler"
 	"github.com/cloudwego/hertz/pkg/app/server"
+	
+	/*
+	"github.com/cloudwego/hertz/pkg/app/client"
+	"github.com/cloudwego/hertz/pkg/network/standard"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/hertz-contrib/reverseproxy"
+	*/
+ 
 )
 
 // customizeRegister registers customize routers.
 func customizedRegister(r *server.Hertz) {
 	r.GET("/ping", handler.Ping)
+	/*
+	// 这里使用反向代理的原因是，1024code只能暴露一个网站+端口。
+	proxy, err := reverseproxy.NewSingleHostReverseProxy(
+		"http://localhost:8888/",
+		client.WithDialer(standard.NewDialer()))
+	if err != nil {
+		hlog.Fatal(err)
+	}
+	r.GET("/static/*filepath", proxy.ServeHTTP)
+	*/
 
 	// your code ...
 }
+
