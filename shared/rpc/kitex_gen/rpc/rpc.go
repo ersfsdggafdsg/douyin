@@ -11,8 +11,8 @@ import (
 type VideoInfo struct {
 	Id            int64  `thrift:"id,1" frugal:"1,default,i64" json:"id"`
 	AuthorId      int64  `thrift:"author_id,2" frugal:"2,default,i64" json:"author_id"`
-	PlayUrl       string `thrift:"play_url,3" frugal:"3,default,string" json:"play_url"`
-	CoverUrl      string `thrift:"cover_url,4" frugal:"4,default,string" json:"cover_url"`
+	PlayHash      string `thrift:"play_hash,3" frugal:"3,default,string" json:"play_hash"`
+	CoverHash     string `thrift:"cover_hash,4" frugal:"4,default,string" json:"cover_hash"`
 	FavoriteCount int64  `thrift:"favorite_count,5" frugal:"5,default,i64" json:"favorite_count"`
 	CommentCount  int64  `thrift:"comment_count,6" frugal:"6,default,i64" json:"comment_count"`
 	Title         string `thrift:"title,7" frugal:"7,default,string" json:"title"`
@@ -35,12 +35,12 @@ func (p *VideoInfo) GetAuthorId() (v int64) {
 	return p.AuthorId
 }
 
-func (p *VideoInfo) GetPlayUrl() (v string) {
-	return p.PlayUrl
+func (p *VideoInfo) GetPlayHash() (v string) {
+	return p.PlayHash
 }
 
-func (p *VideoInfo) GetCoverUrl() (v string) {
-	return p.CoverUrl
+func (p *VideoInfo) GetCoverHash() (v string) {
+	return p.CoverHash
 }
 
 func (p *VideoInfo) GetFavoriteCount() (v int64) {
@@ -64,11 +64,11 @@ func (p *VideoInfo) SetId(val int64) {
 func (p *VideoInfo) SetAuthorId(val int64) {
 	p.AuthorId = val
 }
-func (p *VideoInfo) SetPlayUrl(val string) {
-	p.PlayUrl = val
+func (p *VideoInfo) SetPlayHash(val string) {
+	p.PlayHash = val
 }
-func (p *VideoInfo) SetCoverUrl(val string) {
-	p.CoverUrl = val
+func (p *VideoInfo) SetCoverHash(val string) {
+	p.CoverHash = val
 }
 func (p *VideoInfo) SetFavoriteCount(val int64) {
 	p.FavoriteCount = val
@@ -86,8 +86,8 @@ func (p *VideoInfo) SetCreateTime(val int64) {
 var fieldIDToName_VideoInfo = map[int16]string{
 	1: "id",
 	2: "author_id",
-	3: "play_url",
-	4: "cover_url",
+	3: "play_hash",
+	4: "cover_hash",
 	5: "favorite_count",
 	6: "comment_count",
 	7: "title",
@@ -245,7 +245,7 @@ func (p *VideoInfo) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.PlayUrl = v
+		p.PlayHash = v
 	}
 	return nil
 }
@@ -254,7 +254,7 @@ func (p *VideoInfo) ReadField4(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.CoverUrl = v
+		p.CoverHash = v
 	}
 	return nil
 }
@@ -387,10 +387,10 @@ WriteFieldEndError:
 }
 
 func (p *VideoInfo) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("play_url", thrift.STRING, 3); err != nil {
+	if err = oprot.WriteFieldBegin("play_hash", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.PlayUrl); err != nil {
+	if err := oprot.WriteString(p.PlayHash); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -404,10 +404,10 @@ WriteFieldEndError:
 }
 
 func (p *VideoInfo) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("cover_url", thrift.STRING, 4); err != nil {
+	if err = oprot.WriteFieldBegin("cover_hash", thrift.STRING, 4); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.CoverUrl); err != nil {
+	if err := oprot.WriteString(p.CoverHash); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -507,10 +507,10 @@ func (p *VideoInfo) DeepEqual(ano *VideoInfo) bool {
 	if !p.Field2DeepEqual(ano.AuthorId) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.PlayUrl) {
+	if !p.Field3DeepEqual(ano.PlayHash) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.CoverUrl) {
+	if !p.Field4DeepEqual(ano.CoverHash) {
 		return false
 	}
 	if !p.Field5DeepEqual(ano.FavoriteCount) {
@@ -544,14 +544,14 @@ func (p *VideoInfo) Field2DeepEqual(src int64) bool {
 }
 func (p *VideoInfo) Field3DeepEqual(src string) bool {
 
-	if strings.Compare(p.PlayUrl, src) != 0 {
+	if strings.Compare(p.PlayHash, src) != 0 {
 		return false
 	}
 	return true
 }
 func (p *VideoInfo) Field4DeepEqual(src string) bool {
 
-	if strings.Compare(p.CoverUrl, src) != 0 {
+	if strings.Compare(p.CoverHash, src) != 0 {
 		return false
 	}
 	return true

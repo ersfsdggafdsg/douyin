@@ -2,14 +2,15 @@ package rpc2http
 import (
 	"douyin/shared/rpc/kitex_gen/rpc"
 	"douyin/shared/rpc/kitex_gen/base"
+	"douyin/shared/utils"
 )
 
 func Video(v *rpc.VideoInfo) (*base.Video) {
 	return &base.Video {
 		Id           : v.Id,
 		Author       : nil,
-		PlayUrl      : v.PlayUrl,
-		CoverUrl     : v.CoverUrl,
+		PlayUrl      : utils.GetUrlFromHash(v.PlayHash),
+		CoverUrl     : utils.GetUrlFromHash(v.CoverHash),
 		FavoriteCount: v.FavoriteCount,
 		CommentCount : v.CommentCount,
 		Title        : v.Title,

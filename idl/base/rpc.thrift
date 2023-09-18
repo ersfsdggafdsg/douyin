@@ -4,8 +4,8 @@ namespace go rpc
 struct VideoInfo {
 	1: i64 id
 	2: i64 author_id
-	3: string play_url
-	4: string cover_url
+	3: string play_hash
+	4: string cover_hash
 	5: i64 favorite_count
 	6: i64 comment_count
 	7: string title

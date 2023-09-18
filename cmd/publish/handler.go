@@ -69,17 +69,14 @@ func (s *PublishServiceImpl) PublishAction(ctx context.Context, req *publish.Dou
 	}
 
 	hash := utils.SHA256(req.Data)
-	videoPath := "vid" + hash
-	coverPath := "cvr" + hash
-	var playUrl, coverUrl string
-	if utils.IsExists(videoPath) {
+	videoHash := "vid" + hash
+	coverHash := "cvr" + hash
+	if utils.IsExists(videoHash) {
 		// 由于使用的是哈希，所以可以直接判断是否存在
 		klog.Info("Video existsted, create record only")
-		playUrl = utils.FileUrl(videoPath)
-		coverUrl = utils.FileUrl(coverPath)
 	} else {
 		// 上传视频，写:=后，实际上创建了一个该块内的变量
-		playUrl, err = utils.Upload(req.Data, videoPath)
+		err = utils.Upload(req.Data, videoHash)
 		if err != nil {
 			errno.BuildBaseResp(errno.ServiceErrCode, resp)
 			return resp, nil
@@ -94,7 +91,7 @@ func (s *PublishServiceImpl) PublishAction(ctx context.Context, req *publish.Dou
 		}
 
 		// 上传封面
-		coverUrl, err = utils.Upload(pic, coverPath)
+		err = utils.Upload(pic, coverHash)
 		if err != nil {
 			errno.BuildBaseResp(errno.ServiceErrCode, resp)
 			return resp, nil
@@ -110,8 +107,8 @@ func (s *PublishServiceImpl) PublishAction(ctx context.Context, req *publish.Dou
 	info := model.VideoInfo {
 		VideoInfo: rpc.VideoInfo {
 			AuthorId: req.UserId,
-			PlayUrl: playUrl,
-			CoverUrl: coverUrl,
+			PlayHash: videoHash,
+			CoverHash: coverHash,
 			FavoriteCount: 0,
 			CommentCount: 0,
 			Title: req.Title,

@@ -1,8 +1,0 @@
-db_username: douyin
-db_password: zhihao
-db_name: douyin
-db_addr: 127.0.0.1:3306
-redis_addr: 127.0.0.1:6379
-redis_password: 
-redis_db_no: 0
-

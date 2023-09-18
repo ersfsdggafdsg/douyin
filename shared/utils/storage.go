@@ -8,16 +8,16 @@ import (
 
 )
 
-func Upload(bin []byte, path string) (url string, err error) {
-	url, err = localUploadImpl(bin, path)
-	fmt.Println(url, err)
-	return
+func Upload(bin []byte, hash string) (err error) {
+	err = localUploadImpl(bin, hash)
+	// 根据stack overflow的61283248号问题，使用%w更合适
+	return fmt.Errorf("upload: %s %w", hash, err)
 }
 
-func IsExists(path string) bool {
+func IsExists(hash string) bool {
 	info, err := os.Stat(filepath.Join(
 		"../../cmd/storage/static/",
-		path))
+		hash))
 	if err != nil {
 		return false
 	}
@@ -25,14 +25,13 @@ func IsExists(path string) bool {
 }
 
 var url = initialize.Config.GetString("video_srv_prefix")
-func FileUrl(path string) string {
-	return url + filepath.Join("static/", path)
+func GetUrlFromHash(hash string) string {
+	return url + filepath.Join("static/", hash)
 }
 
-func localUploadImpl(bin []byte, path string) (url string, err error) {
+func localUploadImpl(bin []byte, hash string) (err error) {
 	err = os.WriteFile(filepath.Join(
 		"../../cmd/storage/static/",
-		path), bin, 0644)
-	return FileUrl(path), err
+		hash), bin, 0644)
+	return err
 }
-

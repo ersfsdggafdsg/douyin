@@ -10,6 +10,7 @@ import (
 	"douyin/shared/rpc/kitex_gen/rpc"
 	"douyin/shared/rpc/kitex_gen/base"
 	"github.com/apache/thrift/lib/go/thrift"
+
 	"github.com/cloudwego/kitex/pkg/protocol/bthrift"
 )
 

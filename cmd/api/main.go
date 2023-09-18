@@ -14,7 +14,8 @@ func main() {
 	registry, info := initialize.InitRegistry();
 	h := server.Default(
 		server.WithRegistry(registry, info),
-		server.WithRemoveExtraSlash(true),
+		//server.WithRemoveExtraSlash(true),
+		//server.WithRedirectTrailingSlash(true),
 		server.WithMaxRequestBodySize(10 * 1024 * 1024),
 		server.WithHostPorts(
 			net.JoinHostPort("0.0.0.0", "8080")),

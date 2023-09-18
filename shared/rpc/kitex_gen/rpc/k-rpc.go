@@ -228,7 +228,7 @@ func (p *VideoInfo) FastReadField3(buf []byte) (int, error) {
 	} else {
 		offset += l
 
-		p.PlayUrl = v
+		p.PlayHash = v
 
 	}
 	return offset, nil
@@ -242,7 +242,7 @@ func (p *VideoInfo) FastReadField4(buf []byte) (int, error) {
 	} else {
 		offset += l
 
-		p.CoverUrl = v
+		p.CoverHash = v
 
 	}
 	return offset, nil
@@ -365,8 +365,8 @@ func (p *VideoInfo) fastWriteField2(buf []byte, binaryWriter bthrift.BinaryWrite
 
 func (p *VideoInfo) fastWriteField3(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "play_url", thrift.STRING, 3)
-	offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, p.PlayUrl)
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "play_hash", thrift.STRING, 3)
+	offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, p.PlayHash)
 
 	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
 	return offset
@@ -374,8 +374,8 @@ func (p *VideoInfo) fastWriteField3(buf []byte, binaryWriter bthrift.BinaryWrite
 
 func (p *VideoInfo) fastWriteField4(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "cover_url", thrift.STRING, 4)
-	offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, p.CoverUrl)
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "cover_hash", thrift.STRING, 4)
+	offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, p.CoverHash)
 
 	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
 	return offset
@@ -437,8 +437,8 @@ func (p *VideoInfo) field2Length() int {
 
 func (p *VideoInfo) field3Length() int {
 	l := 0
-	l += bthrift.Binary.FieldBeginLength("play_url", thrift.STRING, 3)
-	l += bthrift.Binary.StringLengthNocopy(p.PlayUrl)
+	l += bthrift.Binary.FieldBeginLength("play_hash", thrift.STRING, 3)
+	l += bthrift.Binary.StringLengthNocopy(p.PlayHash)
 
 	l += bthrift.Binary.FieldEndLength()
 	return l
@@ -446,8 +446,8 @@ func (p *VideoInfo) field3Length() int {
 
 func (p *VideoInfo) field4Length() int {
 	l := 0
-	l += bthrift.Binary.FieldBeginLength("cover_url", thrift.STRING, 4)
-	l += bthrift.Binary.StringLengthNocopy(p.CoverUrl)
+	l += bthrift.Binary.FieldBeginLength("cover_hash", thrift.STRING, 4)
+	l += bthrift.Binary.StringLengthNocopy(p.CoverHash)
 
 	l += bthrift.Binary.FieldEndLength()
 	return l
