@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"douyin/shared/initialize"
+
 )
 
 func Upload(bin []byte, path string) (url string, err error) {
@@ -14,7 +16,7 @@ func Upload(bin []byte, path string) (url string, err error) {
 
 func IsExists(path string) bool {
 	info, err := os.Stat(filepath.Join(
-		"/home/afeather/Codes/golang/src/douyin/cmd/storage/static/",
+		"../../cmd/storage/static/",
 		path))
 	if err != nil {
 		return false
@@ -22,14 +24,14 @@ func IsExists(path string) bool {
 	return !info.IsDir()
 }
 
-
+var url = initialize.Config.GetString("video_srv_prefix")
 func FileUrl(path string) string {
-	return "http://192.168.43.210:8080/" + filepath.Join("static/", path)
+	return url + filepath.Join("static/", path)
 }
 
 func localUploadImpl(bin []byte, path string) (url string, err error) {
 	err = os.WriteFile(filepath.Join(
-		"/home/afeather/Codes/golang/src/douyin/cmd/storage/static/",
+		"../../cmd/storage/static/",
 		path), bin, 0644)
 	return FileUrl(path), err
 }

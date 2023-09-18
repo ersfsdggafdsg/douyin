@@ -78,16 +78,17 @@ func (s *PublishServiceImpl) PublishAction(ctx context.Context, req *publish.Dou
 		playUrl = utils.FileUrl(videoPath)
 		coverUrl = utils.FileUrl(coverPath)
 	} else {
-		// 上传视频
-		playUrl, err := utils.Upload(req.Data, videoPath)
+		// 上传视频，写:=后，实际上创建了一个该块内的变量
+		playUrl, err = utils.Upload(req.Data, videoPath)
 		if err != nil {
 			errno.BuildBaseResp(errno.ServiceErrCode, resp)
 			return resp, nil
 		}
 
 		// 对视频截图，当作封面
-		pic, err := cover.GetCoverFromUrl(playUrl)
+		pic, err := cover.GetCoverFromBytes(req.Data)
 		if err != nil {
+			klog.Error(err)
 			errno.BuildBaseResp(errno.ServiceErrCode, resp)
 			return resp, nil
 		}
