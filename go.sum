@@ -163,6 +163,7 @@ github.com/cloudwego/frugal v0.1.6/go.mod h1:9ElktKsh5qd2zDBQ5ENhPSQV7F2dZ/mXlr1
 github.com/cloudwego/frugal v0.1.7 h1:Ggyk8mk0WrhBlM4g4RJxdOcVWJl/Hxbd8NJ19J8My6c=
 github.com/cloudwego/frugal v0.1.7/go.mod h1:3VECBCSiTYwm3QApqHXjZB9NDH+8hUw7txxlr+6pPb4=
 github.com/cloudwego/hertz v0.6.0/go.mod h1:83EedHQvCXpveYh2r9us8YlQ1C28vPg93wPdB/QpJiA=
+github.com/cloudwego/hertz v0.6.5/go.mod h1:KhztQcZtMQ46gOjZcmCy557AKD29cbumGEV0BzwevwA=
 github.com/cloudwego/hertz v0.6.7 h1:g2hlX/Vm6THUciZ3CAnyRyRhrEiYQ986EBGRn746m4E=
 github.com/cloudwego/hertz v0.6.7/go.mod h1:KhztQcZtMQ46gOjZcmCy557AKD29cbumGEV0BzwevwA=
 github.com/cloudwego/kitex v0.3.2/go.mod h1:/XD07VpUD9VQWmmoepASgZ6iw//vgWikVA9MpzLC5i0=
@@ -461,6 +462,8 @@ github.com/henrylee2cn/goutil v0.0.0-20210127050712-89660552f6f8 h1:yE9ULgp02BhY
 github.com/henrylee2cn/goutil v0.0.0-20210127050712-89660552f6f8/go.mod h1:Nhe/DM3671a5udlv2AdV2ni/MZzgfv2qrPL5nIi3EGQ=
 github.com/hertz-contrib/registry/consul v0.0.0-20230731080040-f474f58b3da2 h1:zP1VfQK3MAhgKs2rL3EgdAOVGar0CkvtYGIWTkZb13Y=
 github.com/hertz-contrib/registry/consul v0.0.0-20230731080040-f474f58b3da2/go.mod h1:bjNZ+0osz/GmRMEXZAMeme+qE7WV6g4DEtX/TdfXzvo=
+github.com/hertz-contrib/reverseproxy v1.0.3 h1:6GdmZy3ReUwcvqrpwscq9tEpugs4DMa5eRzPRdK2fag=
+github.com/hertz-contrib/reverseproxy v1.0.3/go.mod h1:/ub8nqI5etnxDhSK5SpyCyxk66gNI4WPZYKp2YtjKrI=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/iancoleman/strcase v0.2.0 h1:05I4QRnGpI0m37iZQRuskXh+w77mr6Z41lwQzuHLwW0=
 github.com/iancoleman/strcase v0.2.0/go.mod h1:iwCmte+B7n89clKwxIoIXy/HfoL7AsD47ZCWhYzw7ho=
