@@ -1,37 +1,5 @@
 # douyin
 
-## 目录结构
-```
- cmd
- +- api API网关，使用Hertz
- |  +- biz Hertz自动生成的路径，需要实现其中的handler
- |  +- script router_gen.go router.go main.go build.sh 由Hertz根据protobuf生成
- |  +- output api 由build.sh编译产生
- |  +- api-gen.sh 自动编译protobuf的脚本，由Afeather2017编写
- |  +- init 初始化
- |  |  `- rpc 初始化rpc服务
- |  `- pkg handler的具体实现
- +- comment
- |  +- pkg 
- |  |  `- mysql 数据库操作的实现
- |  +- init
- |  `- config 初始化使用的代码
- |     +- rpc rpc实现
- |     +- ...init.go rpc初始化
- |     `- init.go 初始化
- +- favorite
- +- feed
- +- message
- +- publish
- +- relation
- +- storage
- `- user
-```
-
-## cmd/api
-
-如果更新了`idl/http`下的protobuf文件，一定要执行`api-gen`来更新API网关
-
 ## rabbitmq安装
 
 ```shell
@@ -40,13 +8,78 @@ sudo pacman -S rabbitmq
 sudo rabbitmq-plugins enable --offline rabbitmq_peer_discovery_consul
 ```
 
-TODO: 
-1. 在网关添加中间件，过滤掉不存在的用户id、不存在的评论id、不存在的视频id
- uid: /user, /publish/list, /favorite/action, /comment/action, /comment/list, /favorite/list, /relation/follow/list, /relation/follower/list, /relation/friend/list,
- vid: /favorite/action, /comment/action, /comment/list
- uid, touid: /message/chat, /message/action, /relation/action
- uid(可以不存在): /feed
+## consul安装
+``` shell
+# On arch linux
+sudo pacman -S consul
+```
 
-2. 提升
-  - 更改jwt的模式，因为需要检查用户、视频、评论是否存在，使用jwt还不如直接服务端存一个验证用的
-  - 更改idl文件，参数统一为一个结构体，这么做的好处是，可以直接通过统一的key生成函数，去查验数据是否存在
+## 编译并执行
+``` shell
+make run
+```
+
+## 编译的时候可能会遇到的问题
+
+1. 编译的时候报错说找不到AVCodecContext。这需要你修改thumbnailer的代码，详情见shared/utils/cover/cover.go。其实我很想自己写一个的，但是没时间了。
+2. 在1024code上可以编译但是没有办法获取到视频。这需要你取消掉cmd/api/router.go的注释。详情也写在里面，总之就是要反向代理。
+3. Mysql、redis、rabbitmq、consul等无法链接。这需要你修改run.sh，改掉环境变量。
+4. 视频无法保存。这需要你创建cmd/storage/static文件夹。我可能已经创建了。
+
+## 项目的目录结构
+
+```
+ 项目根目录
+ ├╴idl           idl接口描述文件
+ ├╴tools         一些供调试的工具
+ ├╴makefile      全局makefile
+ ├╴cmd           各个微服务和网关
+ ╰╴shared        复用的代码
+   ├╴middleware  通用的中间件
+   ├╴rpc         kitex的生成内容
+   ├╴config      配置RPC调用客户端
+   ├╴initialize  初始化，这个是供微服务使用的
+   ├╴consts      常量
+   ╰╴utils       一些通用的组件
+```
+
+```
+ favorite      cmd下的各个微服务 
+ ├╴handler.go  将功能实现转向service
+ ├╴pkg  
+ │ ├╴service   handler的实现，有每个路由的实现以及RPC调用的实现
+ │ │ ├╴favoriteadd.go 
+ │ │ ╰╴...
+ │ ├╴mq        消息队列实现
+ │ │ ╰╴mq.go 
+ │ ├╴dal       数据访问层
+ │ │ ├╴mysql  
+ │ │ │ ╰╴mysql.go 
+ │ │ ├╴model  
+ │ │ │ ╰╴model.go 
+ │ │ ╰╴redis  
+ │ │   ╰╴redis.go 
+ │ ╰╴manager   管理器，管理了消息队列和数据访问层
+ │   ╰╴manager.go 
+ ├╴main.go 
+ ╰╴makefile
+```
+
+```
+ cmd/api 
+ ├╴api-gen.sh 
+ ├╴router_gen.go 
+ ├╴pkg           API网关专用的一些组件，包括JWT、中间件
+ ├╴initialize    初始化，这个供api网关使用的
+ ├╴main.go 
+ ├╴router.go     路由。由于要部署到1024code上，所以有一个反向代理
+ ├╴biz  
+ │ ├╴handler     各个路由的实现
+ │ ├╴router      各个路由的一些配置，比如中间件
+ │ ╰╴model       各个路由使用的结构体
+ ╰╴makefile
+```
+
+## 项目说明
+
+见https://pa3l7zekcrz.feishu.cn/docx/NW5Pd8slsoif16xt0ZBcnA8snhg

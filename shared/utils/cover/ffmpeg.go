@@ -6,8 +6,8 @@ import (
 	"image"
 	"image/jpeg"
 	"os"
-	"os/exec"
 
+	"github.com/bakape/thumbnailer"
 	ffmpeg "github.com/u2takey/ffmpeg-go"
 )
 
@@ -38,22 +38,56 @@ func GetCoverFromBytes(video []byte) ([]byte, error) {
 	// 如果直接使用GetCoverFrom Url，需要等待storage刷新。
 	// 而且这样还挺慢的。
 	// 所以就有了这个函数。本来想使用pipe的，结果发现,
-	// go的ffmpeg好像不支持使用管道作为输入。
-	// 看到了stack overflow上建议使用
-	// https://github.com/bakape/thumbnailer（需要pkg-config）
-	// 不过要部署到1024code上，但是1024code无法安装pkg-config
-	// 没办法，就使用exec.Command了。
-	cmd := exec.Command("ffmpeg", "-i", "pipe:0", "-vframes", "1", "-f", "mjpeg", "-")
-	cmd.Stdin = bytes.NewReader(video)
+	// go的ffmpeg-go好像不支持使用管道作为输入。
+	// 我使用过管道、bytes.Reader，都不行，后面想到了他们不支持Seek。
+	// 似乎ffmpeg需要对一些视频格式进行Seek，所以必须要一个支持它的东西。
+	// 你可以试试用cat video.mp4 | ffmpeg -i ...
+	// 这么做，一些视频文件会报错（应该是大多数文件，手头的mkv文件不会）
+	// 但是ffmpeg -i ... < video.mp4不会，原因是这样实际上是打开了video.mp4，
+	// 这样打开的，它支持Seek操作。
+	// 但是实际上，ReadSeeker也不行，可能它只是对golang的内存读写做了封装了，
+	// 而并没有对Linux进行封装。
+	/*
+	cmd := exec.Command("ffmpeg", "-i", "-", "-vframes", "1", "-f", "mjpeg", "-")
+	var image bytes.Buffer
+	cmd.Stdout = &image
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
 
-	var imageBuffer bytes.Buffer
-	cmd.Stdout = &imageBuffer
 	err := cmd.Run()
+	if err != nil {
+		err = fmt.Errorf("Get cover failed: %w: %s", err, stderr.String())
+		return nil, err
+	}
+	*/
 
+	// 看到了stack overflow上建议使用
+	// https://github.com/bakape/thumbnailer
+	// 就决定用thumbnailer了。
+	// 但是它有v1和v2两个版本
+	// v1有一个好用的ProcessBuffer([]byte, options)
+	// 但是v2没有，
+	// 如果你要使用v1，你需要修改他们的源代码，修改这个文件
+	// pkg/mod/github.com/bakape/thumbnailer@v1.0.0/ffmpeg.h
+	// 加上这一行
+	// #include <libavcodec/avcodec.h>
+	//
+	// 因为这个函数的定义是
+	// int codec_context(AVCodecContext **avcc,
+	//			  int *stream,
+	//			  AVFormatContext *avfc,
+	//			  const enum AVMediaType type);
+	// 但是缺少该头文件，那么就缺少AVCodecContext这个定义
+
+	thumbnailDimensions := thumbnailer.Dims{Width: 1080, Height: 2060}
+
+	thumbnailOptions := thumbnailer.Options{JPEGQuality:100, MaxSourceDims:thumbnailer.Dims{}, ThumbDims:thumbnailDimensions, AcceptedMimeTypes: nil}
+
+	_, thumbnail, err := thumbnailer.ProcessBuffer(video, thumbnailOptions)
 	if err != nil {
 		return nil, err
 	}
 
-	return imageBuffer.Bytes(), nil
+	return thumbnail.Image.Data, nil
 }
 

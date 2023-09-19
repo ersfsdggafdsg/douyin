@@ -69,6 +69,7 @@ func (s *PublishServiceImpl) PublishAction(ctx context.Context, req *publish.Dou
 	}
 
 	hash := utils.SHA256(req.Data)
+	klog.Debugf("hash: %s", utils.SHA256(req.Data))
 	videoHash := "vid" + hash
 	coverHash := "cvr" + hash
 	if utils.IsExists(videoHash) {
@@ -78,11 +79,13 @@ func (s *PublishServiceImpl) PublishAction(ctx context.Context, req *publish.Dou
 		// 上传视频，写:=后，实际上创建了一个该块内的变量
 		err = utils.Upload(req.Data, videoHash)
 		if err != nil {
+			klog.Error(err)
 			errno.BuildBaseResp(errno.ServiceErrCode, resp)
 			return resp, nil
 		}
 
 		// 对视频截图，当作封面
+		klog.Debugf("hash: %s", utils.SHA256(req.Data))
 		pic, err := cover.GetCoverFromBytes(req.Data)
 		if err != nil {
 			klog.Error(err)

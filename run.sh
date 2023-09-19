@@ -4,7 +4,8 @@
 export RABBITMQ_LOG_BASE=$PWD/srv/rabbitmq-base/log
 export RABBITMQ_MNESIA_BASE=$PWD/srv/rabbitmq-base/mnesia
 
-# 这是1024code独有的内容。因为这些变量会变化，但是总归是环境变量
+# 这是1024code独有的内容，如果你只需要跑在本地，可以修改他们
+# 1024code上，这些变量会变化，但是总归是环境变量
 echo "db_username: ${MYSQL_USER}
 db_password: ${MYSQL_PASSWORD}
 db_name: douyin
@@ -18,11 +19,17 @@ video_srv_prefix: https://${paas_url}/
 # 为什么不配置consul和rabbitmq？原因是，它们目前跑在本地。
 
 " > cmd/config.yaml
+
+# 避免这些文件夹不存在
+mkdir $RABBITMQ_LOG_BASE $RABBITMQ_MNESIA_BASE -p
+mkdir cmd/storage/static -p
+
 consul agent -dev -client=0.0.0.0 -log-level error &
 rabbitmq-server &
 echo 等待服务启动
 # 因为1024上rabbitmq启动较慢，一般要15秒，所以这里写20
 sleep 20
+
 for p in $@; do
 	$(cd $p; make)&
 done

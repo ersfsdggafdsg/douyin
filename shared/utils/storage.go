@@ -11,7 +11,11 @@ import (
 func Upload(bin []byte, hash string) (err error) {
 	err = localUploadImpl(bin, hash)
 	// 根据stack overflow的61283248号问题，使用%w更合适
-	return fmt.Errorf("upload: %s %w", hash, err)
+	if err != nil {
+		return fmt.Errorf("upload: %s %w", hash, err)
+	}
+
+	return nil
 }
 
 func IsExists(hash string) bool {
