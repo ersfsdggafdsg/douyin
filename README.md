@@ -21,7 +21,7 @@ make run
 
 ## 编译的时候可能会遇到的问题
 
-1. 编译的时候报错说找不到AVCodecContext。这需要你修改thumbnailer的代码，详情见shared/utils/cover/cover.go。其实我很想自己写一个的，但是没时间了。
+1. 编译的时候报错说找不到AVCodecContext。这需要你修改thumbnailer的代码，详情见shared/utils/cover/ffmpeg.go。其实我很想自己写一个的，但是没时间了。
 2. 在1024code上可以编译但是没有办法获取到视频。这需要你取消掉cmd/api/router.go的注释。详情也写在里面，总之就是要反向代理。
 3. Mysql、redis、rabbitmq、consul等无法链接。这需要你修改run.sh，改掉环境变量。
 4. 视频无法保存。这需要你创建cmd/storage/static文件夹。我可能已经创建了。
